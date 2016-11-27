@@ -1,5 +1,6 @@
 (ns garde-manger.core
-  (:require [garde-manger.kafka :as kafka])
+  (:require [garde-manger.kafka :as kafka]
+            [garde-manger.clinvar :as clinvar])
   (:gen-class))
 
 (defn -main
