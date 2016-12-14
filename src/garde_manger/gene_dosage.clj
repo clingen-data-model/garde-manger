@@ -45,6 +45,9 @@
    :date (xml1-> z :updated text)
    :agent (xml1-> z :assignee text)})
 
+
+;; TODO: need to modify (should be straightforward) to accomodate 
+;; triplosensitivity
 (defn xml-to-interpretation
   "Transform a single item (as data.xml node) to an interpretation object"
   [item]
@@ -72,3 +75,7 @@
        :content
        (filter #(= :item (:tag %)))
        (map xml-to-interpretation)))
+
+;; TODO Write function to query JIRA for xml list to transform.
+;; In medium term, should begin query from date last queried, order
+;; by updates, capture all records (reporting errors).

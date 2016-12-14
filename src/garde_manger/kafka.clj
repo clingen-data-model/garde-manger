@@ -2,14 +2,6 @@
   (:import java.util.Properties
            [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
 
-
-   ;; props.put("bootstrap.servers", "localhost:9092");
-   ;;  props.put("acks", "all");
-   ;;  props.put("retries", 0);
-   ;;  props.put("key.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
-   ;;  props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
-   ;;  props.put("schema.registry.url", url);
-
 (def client-properties
   {"bootstrap.servers" "localhost:9092"
    "acks" "0"
@@ -24,8 +16,6 @@
     (doseq [p client-properties]
       (.put props (p 0) (p 1)))
     props))
-
-
 
 (defn create-producer
   []
