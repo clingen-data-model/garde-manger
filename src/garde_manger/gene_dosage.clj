@@ -24,6 +24,18 @@
 
 (def gain-score "customfield_10166")
 
+
+;; Gene Curation fields
+;; Link to Gene:https://www.ncbi.nlm.nih.gov/gene/7428 customfield_10157
+
+;; General fields
+;; Loss phenotype omim id customfield_10200
+;; gain phenotype omim id
+
+;; Region Curation fields
+;; ISCA Region Name
+;; GRCh37 Genome Position:
+
 (defn custom-field
   [z id]
   "Return text from custom field in z (zipper) given id tag"
@@ -38,6 +50,8 @@
            :description (custom-field z (last %))) 
    fields))
 
+
+;; TODO add status, resolution 
 (defn frontmatter 
   "Extract metadata (title, date, agent) common to loss and gain phenotypes"
   [z]
@@ -56,6 +70,7 @@
            :haploinsufficiency_score (custom-field z loss-score)
            :evidence_line {:has_supporting_data (evidence z loss-evidence-fields)})))
 
+;; TODO filter for type (ISCA Gene Curation, ISCA Region Curation)
 (defn transform-list
   "Transform a list of Gene Dosage items (in xml stream) into interpretation objects"
   [list]

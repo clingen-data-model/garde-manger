@@ -26,7 +26,7 @@
   "Send msg into the defined kafka instance. Message must be serialized appropriately first"
   [msg]
   (let [producer (create-producer)
-        payload (new ProducerRecord "messages" "dudekey" msg)]
+        payload (new ProducerRecord "messages" "keyn" msg)]
     (println "sending message " msg)
     (.send producer payload)
     (.close producer)))
