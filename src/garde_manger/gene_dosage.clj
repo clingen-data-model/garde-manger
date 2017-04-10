@@ -2,9 +2,15 @@
   (:require [clojure.data.xml :as xml]
             [clojure.xml :as cxml]
             [clojure.java.io :as io]
+            [clj-http.client :as client]
             [clojure.zip :as zip]
             [clojure.data.zip :as dzip]
             [clojure.data.zip.xml :as xdzip :refer [xml-> xml1-> attr attr= text]]))
+
+
+;; This works: Should switch to using REST API, instead of trying to hack
+;; a response from the (broken!) RSS feed
+;; curl -D- -u thnelson@geisinger.edu:***REMOVED*** -X GET -H "Content-Type: application/json" https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/issue/createmeta
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -28,6 +34,8 @@
                   :haploinsufficiency-score "customfield_10165"})
 
 (def gain-fields {:triplosensitivity-score "customfield_10166"})
+
+(def gene-fields {:ncbi_gene "customfield_10157"})
 
 ;; Gene Curation fields
 ;; Link to Gene:https://www.ncbi.nlm.nih.gov/gene/7428 customfield_10157
@@ -55,12 +63,15 @@
    fields))
 
 
-(def frontmatter-fields
-  [[:id :key]
-   [:status :resolution]
-   [:agent :assignee]
-   [:date :updated]
-   [:title :title]])
+(defn gene-fields
+  [z]
+  {:ncbi_gene_id (second (re-find #"([0-9]*)$" (custom-field z "customfield_10157")))})
+
+
+(defn loss-fields
+  [z]
+  {:haploinsufficiency_score (custom-field z loss-score)
+   :evidence_line (evidence z loss-evidence-fields)})
 
 ;; TODO add status, resolution 
 (defn frontmatter 
@@ -79,9 +90,9 @@
   "Transform a single item (as data.xml node) to an interpretation object"
   [item]
   (let [z (zip/xml-zip item)]
-    (assoc (frontmatter z)
-           :haploinsufficiency_score (custom-field z loss-score)
-           :evidence_line {:has_supporting_data (evidence z loss-evidence-fields)})))
+    (merge (frontmatter z)
+           (gene-fields z)
+           (loss-fields z))))
 
 (defn item-zipper
   "Retrieve the zipper containing the list of items in interpretation"
