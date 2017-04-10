@@ -20,17 +20,21 @@
    ["customfield_10191" "customfield_10192"]
    ["customfield_10193" "customfield_10194"]])
 
+;; deprecate in favor of combined hashes
 (def loss-score "customfield_10165")
-
 (def gain-score "customfield_10166")
 
+(def loss-fields {:loss-phenotype "customfield_10200"
+                  :haploinsufficiency-score "customfield_10165"})
+
+(def gain-fields {:triplosensitivity-score "customfield_10166"})
 
 ;; Gene Curation fields
 ;; Link to Gene:https://www.ncbi.nlm.nih.gov/gene/7428 customfield_10157
 
 ;; General fields
-;; Loss phenotype omim id customfield_10200
-;; gain phenotype omim id
+;; Loss phenotype omim id "customfield_10200"
+;; gain phenotype omim id ???
 
 ;; Region Curation fields
 ;; ISCA Region Name
@@ -46,10 +50,17 @@
   "Extract evidence from subset of nodes"
   [z fields]
   (map 
-   #(assoc {}  :hasdbxref (custom-field z (first %))
+   #(assoc {}  :pmid (custom-field z (first %))
            :description (custom-field z (last %))) 
    fields))
 
+
+(def frontmatter-fields
+  [[:id :key]
+   [:status :resolution]
+   [:agent :assignee]
+   [:date :updated]
+   [:title :title]])
 
 ;; TODO add status, resolution 
 (defn frontmatter 
@@ -57,7 +68,9 @@
   [z]
   {:title (xml1-> z :title text)
    :date (xml1-> z :updated text)
-   :agent (xml1-> z :assignee text)})
+   :agent (xml1-> z :assignee text)
+   :status (xml1-> z :resolution text)
+   :id (xml1-> z :key text)})
 
 
 ;; TODO: need to modify (should be straightforward) to accomodate 
@@ -69,6 +82,17 @@
     (assoc (frontmatter z)
            :haploinsufficiency_score (custom-field z loss-score)
            :evidence_line {:has_supporting_data (evidence z loss-evidence-fields)})))
+
+(defn item-zipper
+  "Retrieve the zipper containing the list of items in interpretation"
+  [file]
+  (->> file
+       io/input-stream
+       xml/parse
+       :content
+       first
+       :content
+       (filter #(= :item (:tag %)))))
 
 ;; TODO filter for type (ISCA Gene Curation, ISCA Region Curation)
 (defn transform-list
