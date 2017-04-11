@@ -7,7 +7,8 @@
                  [org.apache.kafka/kafka-clients "0.10.1.0"]
                  [org.clojure/data.xml "0.1.0-beta2"]
                  [org.clojure/data.zip "0.1.2"]
-                 [clj-http "2.3.0"]]
+                 [clj-http "2.3.0"]
+                 [cheshire "5.7.0"]]
   :main ^:skip-aot garde-manger.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

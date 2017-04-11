@@ -2,7 +2,8 @@
   (:require [clojure.data.xml :as xml]
             [clojure.xml :as cxml]
             [clojure.java.io :as io]
-            [clj-http.client :as client]
+            [clj-http.client :as http]
+            [cheshire.core :as json]
             [clojure.zip :as zip]
             [clojure.data.zip :as dzip]
             [clojure.data.zip.xml :as xdzip :refer [xml-> xml1-> attr attr= text]]))
