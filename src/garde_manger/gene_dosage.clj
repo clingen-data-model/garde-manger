@@ -1,18 +1,8 @@
 (ns garde-manger.gene-dosage
-  (:require [clojure.data.xml :as xml]
-            [clojure.xml :as cxml]
-            [clojure.java.io :as io]
-            [clj-http.client :as http]
+  (:require [clj-http.client :as http]
             [cheshire.core :as json]
-            [clojure.set :refer [rename-keys]]
-            [clojure.zip :as zip]
-            [clojure.data.zip :as dzip]
-            [clojure.data.zip.xml :as xdzip :refer [xml-> xml1-> attr attr= text]]))
+            [clojure.set :refer [rename-keys]]))
 
-
-;; This works: Should switch to using REST API, instead of trying to hack
-;; a response from the (broken!) RSS feed
-;; curl -D- -u thnelson@geisinger.edu:***REMOVED*** -X GET -H "Content-Type: application/json" https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/issue/createmeta
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -28,12 +18,9 @@
    ["customfield_10191" "customfield_10192"]
    ["customfield_10193" "customfield_10194"]])
 
-;; deprecate in favor of combined hashes
-(def loss-score "customfield_10165")
-(def gain-score "customfield_10166")
-
-(def loss-fields {"customfield_10200" :loss_phenotype
-                  "customfield_10165" :haploinsufficiency_score})
+(def loss-fields {"customfield_10200" :phenotype
+                  "customfield_10165" :haploinsufficiency_score
+                  "customfield_10198" :description})
 
 (def gain-fields {"customfield_10166" :triplosensitivity_score
                   "customfield_10201" :gain_phenotype})
@@ -47,6 +34,11 @@
 ;; Fields where we want to extract a more deeply nested value to represent
 ;; in the JSON, or otherwise apply some appropriate transformation
 ;; a map of functions to apply to the value of certain keys after retrieval
+(def valued-keys [[:haploinsufficiency_score #(% "value")]
+                  [:status #(% "name")]
+                  [:phenotype #(if (empty? %)
+                                 nil
+                                 (str "http://purl.obolibrary.org/obo/OMIM_" %))]])
 
 (defn extract-evidence-line
   [fields key-set]
@@ -62,21 +54,26 @@
   (let [id (item "key")
         fields (item "fields")
         evidence (extract-evidence-line fields loss-evidence-fields)
-        key-set (merge frontmatter-fields gene-fields loss-fields)]
+        key-set (merge frontmatter-fields gene-fields loss-fields)
+        mapped-fields (-> fields (rename-keys key-set) (select-keys (vals key-set)))
+        ;; apply transformations specified in valued-keys
+        mapped-valued-fields (reduce #(update %1 (%2 0) (%2 1)) mapped-fields valued-keys)]
     (merge {:id id}
            {:evidence_line  evidence}
-           (-> fields (rename-keys key-set) (select-keys (vals key-set))))))
+           mapped-valued-fields)))
 
 (defn transform-jira-issues
   "Transform issues from JIRA into data model-ish format"
   []
-  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND \"ISCA Haploinsufficiency score\" in (3) ORDER BY updated DESC"
+  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND \"ISCA Haploinsufficiency score\" in (0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\") ORDER BY updated DESC"
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
-                              {:jql query-str}
+                              {:jql query-str
+                               :startAt 0
+                               :maxResults 5}
                               :content-type "application/json"
                               :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
         issues (-> result :body json/parse-string (get "issues"))]
-    (-> issues first transform-gene-haploinsufficiency)))
+    (map transform-gene-haploinsufficiency issues)))
 
 
