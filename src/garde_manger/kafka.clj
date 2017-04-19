@@ -3,7 +3,7 @@
            [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
 
 (def client-properties
-  {"bootstrap.servers" "tndeb:9092"
+  {"bootstrap.servers" "localhost:9092"
    "acks" "0"
    "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"})
@@ -17,16 +17,17 @@
       (.put props (p 0) (p 1)))
     props))
 
-(defn create-producer
+(defn producer
   []
   (let [props (client-configuration)]
     (new KafkaProducer props)))
 
+
 (defn send-message
   "Send msg into the defined kafka instance. Message must be serialized appropriately first"
   [msg]
-  (let [producer (create-producer)
-        payload (new ProducerRecord "test" "keyn" msg)]
+  (let [producer (producer)
+        payload (ProducerRecord. "gene_dosage" "keyn" msg)]
     (println "sending message " msg)
     (.send producer payload)
     (.close producer)))
