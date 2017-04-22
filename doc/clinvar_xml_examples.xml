@@ -1,0 +1,56 @@
+<!-- Example(s) of assertions in ClinVar, trimmed for relevant fields only --> 
+
+<!-- Not entirely sure where to get typed phenotypes from -->
+
+<ReleaseSet>
+  <!-- Not sure if the ClinVarSet ID or the RCV ID is the most appropriate 
+       to bind the assertion to. -->
+  <ClinVarSet ID="14433258">
+    <ReferenceClinVarAssertion DateCreated="2015-03-25" DateLastUpdated="2016-10-03" ID="394744">
+      <!-- Verify MeasureSet and Measure IDs are stable. -->
+      <MeasureSet Type="Variant" ID="187820">
+        <!-- CAPTURE: Measure:type, Measure:ID -->
+        <Measure Type="copy number gain" ID="185724">
+          <AttributeSet>
+            <!-- CAPTURE: Attribute:integerValue WHERE Type = AbsoluteCopyNumber -->
+            <Attribute Type="AbsoluteCopyNumber" integerValue="3"/>
+          </AttributeSet>
+          <!-- CAPTURE SequenceLocation:Assembly, Chr, (inner,outer,display)|(start,stop)
+               variantLength -->
+          <SequenceLocation Assembly="GRCh37" AssemblyAccessionVersion="GCF_000001405.25" AssemblyStatus="previous" Chr="2" Accession="NC_000002.11" innerStart="239873381" innerStop="243006013" display_start="239873381" display_stop="243006013" variantLength="3132633"/>
+          <!-- Example SequenceLocation for SNP -->
+          <SequenceLocation Assembly="GRCh38" AssemblyAccessionVersion="GCF_000001405.28" AssemblyStatus="current" Chr="19" Accession="NC_000019.10" start="40848628" stop="40848628" display_start="40848628" display_stop="40848628" variantLength="1" referenceAllele="A" alternateAllele="T"/>
+          <!-- Example SequenceLocation for del -->
+          <SequenceLocation Assembly="GRCh38" AssemblyAccessionVersion="GCF_000001405.28" AssemblyStatus="current" Chr="1" Accession="NC_000001.11" start="231351570" stop="231351573" display_start="231351570" display_stop="231351573" variantLength="4" referenceAllele="AGGT" alternateAllele="-"/>
+          <!-- Example SequenceLocation for dup -->
+          <SequenceLocation Assembly="GRCh38" AssemblyAccessionVersion="GCF_000001405.28" AssemblyStatus="current" Chr="X" Accession="NC_000023.11" start="154021800" stop="154097731" display_start="154021800" display_stop="154097731" Strand="-"/>
+          <!-- CAPTURE all overlapping genes by HGNC-->
+          <MeasureRelationship Type="genes overlapped by variant">
+            <XRef ID="HGNC:1087" DB="HGNC"/>
+          </MeasureRelationship>
+        </Measure>
+      </MeasureSet>
+      <!-- Phenotypes (normalized) are weird. Should exist within a TraitSet with
+           type Disease, and then have references into external DBs
+           MIM IDs may also be a reference to a gene and not a condition, problematic --> 
+      <TraitSet Type="Disease" ID="7666">
+        <Trait>
+          <XRef ID="C3714506" DB="MedGen"/>
+          <XRef ID="564" DB="Orphanet"/>
+          <XRef Type="MIM" ID="249000" DB="OMIM"/>
+        </Trait>
+      </TraitSet>
+    </ReferenceClinVarAssertion>
+    <ClinVarAssertion ID="394659">
+      <!-- CAPTURE ClinVarSubmissionID:submitter -->
+      <ClinVarSubmissionID localKey="MC14-5-2|See Cases" submitter="Cytogenetics and Genomics Laboratory,University of Washington" submitterDate="2015-01-08"/>
+      <!-- CAPTURE SCV ID--> 
+      <ClinVarAccession Acc="SCV000218444" Version="2" Type="SCV" OrgID="505311" DateUpdated="2016-10-05"/>
+      <!-- CAPTURE ClinicalSignificance:DateLastEvaluated -->
+      <ClinicalSignificance DateLastEvaluated="2014-01-17">
+        <!-- CAPTURE Description:text -->
+        <Description>Pathogenic</Description>
+      </ClinicalSignificance>
+    </ClinVarAssertion>
+  </ClinVarSet>
+</ReleaseSet>
