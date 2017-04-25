@@ -139,12 +139,12 @@
   []
   (with-open [st (io/reader cvxml)
               out (io/writer output-file)]
-    (pprint (take 5  (->> st
-                       xml/parse
-                       :content
-                       (filter #(type= % "copy number gain"))
-                       (map construct-clingen-import)))
-            out)))
+    (pprint  (->> st
+                  xml/parse
+                  :content
+                  (filter #(type= % "copy number gain"))
+                  (map construct-clingen-import))
+             out)))
 
 ;; This code seems to avoid the 'head retention' problem
 ;; http://blog.korny.info/2014/03/08/xml-for-fun-and-profit.html#laziness---lose-your-head
