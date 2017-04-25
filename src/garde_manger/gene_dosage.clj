@@ -95,7 +95,7 @@
 (defn transform-jira-issues
   "Transform issues from JIRA into data model-ish format"
   []
-  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND \"ISCA Haploinsufficiency score\" in (0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\") ORDER BY updated DESC"
+  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND \"ISCA Haploinsufficiency score\" in (0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\", \"40: Dosage sensitivity unlikely\") ORDER BY updated DESC"
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
                               {:jql query-str

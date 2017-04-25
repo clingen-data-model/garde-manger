@@ -9,8 +9,8 @@
 
 ;;(def cvxml "data/ClinVarFullRelease_2016-11.xml")
 ;;(def cvxml "data/RCV000077146.xml")
-(def cvxml "data/ClinVarFullRelease_2017-0417.xml")
-(def output-file "data/ClinVar_interps.edn")
+(def cvxml "data/clinvar.xml")
+(def output-file "data/clinvar_interps.edn")
 
 (def term-iri-map {"copy number gain" "http://purl.obolibrary.org/obo/SO_0001911"
                    "copy number loss" "http://purl.obolibrary.org/obo/SO_0001912"
@@ -19,6 +19,8 @@
                    "Uncertain significance" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000107"
                    "Likely Pathogenic" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000106"
                    "Pathogenic" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000105"})
+
+;; TODO import this term in OWL: http://datamodel.clinicalgenome.org/clingen.owl#CG_000110 (Region Context)
 
 (def base-iris {:region "https://search.clinicalgenome.org/kb/regions/CV_"
                 :clinvar "https://www.ncbi.nlm.nih.gov/clinvar/variation/"
@@ -77,7 +79,9 @@
                                 :inner-stop (attr % :innerStop)
                                 :outer-stop (attr % :outerStop)
                                 :stop (attr % :stop)
-                                :reference (attr % :referenceAllele)}))
+                                :reference (attr % :referenceAllele)
+                                ;; region context/contextual region
+                                :type "http://datamodel.clinicalgenome.org/clingen.owl#CG_000110"}))
          locs)))
 
 (defn construct-alteration
@@ -88,7 +92,10 @@
         id (attr z :ID)]
     (into {} (filter val {:id (str (:clinvar base-iris) id)
                           :region (str (:region base-iris) id)
-                          :alteration-type (term-iri-map (xml1-> loc :Measure (attr :Type)))
+                          ;; Alteration type is directly analogous SO type
+                          ;; May want to include subtype eventually so importer knows
+                          ;; how to handle.
+                          :type (term-iri-map (xml1-> loc :Measure (attr :Type)))
                           :copy-number (some-> (xml1-> loc
                                                        :Measure
                                                        :AttributeSet
@@ -113,15 +120,19 @@
                                 :clinical-significance 
                                 (term-iri-map (xml1-> % :ClinicalSignificance
                                                       :Description
-                                                      text))}))
+                                                      text))
+                                :type "http://purl.obolibrary.org/obo/SEPIO_0000000"}))
          interps)))
 
 (defn construct-clingen-import
   "Deconstruct a ClinVar Set into the region, alterations, and assertions"
   [node]
-  {:cx-regions (construct-regions node)
-   :alteration (construct-alteration node)
-   :interpretations (construct-interpretations node)})
+  ;; {:cx-regions (construct-regions node)
+  ;;  :alteration (construct-alteration node)
+  ;;  :interpretations (construct-interpretations node)}
+  (concat (conj (construct-regions node)
+                (construct-alteration node))
+          (construct-interpretations node)))
 
 (defn clinvar-cnvs
   "Import variants from ClinVar, filter for CNVs"
@@ -132,8 +143,8 @@
                        xml/parse
                        :content
                        (filter #(type= % "copy number gain"))
-                       (map construct-clingen-import))))
-    out))
+                       (map construct-clingen-import)))
+            out)))
 
 ;; This code seems to avoid the 'head retention' problem
 ;; http://blog.korny.info/2014/03/08/xml-for-fun-and-profit.html#laziness---lose-your-head
