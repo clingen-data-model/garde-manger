@@ -42,9 +42,8 @@
       </TraitSet>
     </ReferenceClinVarAssertion>
     <ClinVarAssertion ID="394659">
-      <!-- CAPTURE ClinVarSubmissionID:submitter -->
       <ClinVarSubmissionID localKey="MC14-5-2|See Cases" submitter="Cytogenetics and Genomics Laboratory,University of Washington" submitterDate="2015-01-08"/>
-      <!-- CAPTURE SCV ID--> 
+      <!-- CAPTURE SCV ID, submitter org id, version--> 
       <ClinVarAccession Acc="SCV000218444" Version="2" Type="SCV" OrgID="505311" DateUpdated="2016-10-05"/>
       <!-- CAPTURE ClinicalSignificance:DateLastEvaluated -->
       <ClinicalSignificance DateLastEvaluated="2014-01-17">
