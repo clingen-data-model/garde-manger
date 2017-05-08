@@ -100,13 +100,16 @@
         result (http/get url {:query-params 
                               {:jql query-str
                                :startAt 0
-                               :maxResults 5}
+                               :maxResults 20}
                               :content-type "application/json"
                               :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
         issues (-> result :body json/parse-string (get "issues"))
         messages (map transform-gene-haploinsufficiency issues)]
-    (with-open [p (kafka/producer)]
+    ;; (with-open [p (kafka/producer)]
+    ;;   (doseq [m messages]
+    ;;     (.send p (ProducerRecord. "gene_dosage" (:id m) (json/generate-string m)))))
+    (with-open [w (clojure.java.io/writer "data/dosage_interps.json")]
       (doseq [m messages]
-        (.send p (ProducerRecord. "gene_dosage" (:id m) (json/generate-string m)))))))
+        (println (json/generate-stream m w {:pretty true}))))))
 
 
