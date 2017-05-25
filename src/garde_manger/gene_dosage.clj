@@ -37,7 +37,7 @@
 (def gene-fields {"customfield_10157" :gene})
 
 (def frontmatter-fields {"title" :title
-                         "updated" :date
+                         "updated" :modified
                          "status" :status})
 
 ;; Translation of raw scores into IRI-based types
@@ -86,7 +86,6 @@
   "Given keyset, identifying the evidence and description fields for the assertion,
   extract the evidence line and the description"
   [fields key-set type id]
-  (clojure.pprint/pprint key-set)
   (for [e key-set
         :let [pub (fields (first e))
               desc (fields (second e))
@@ -111,7 +110,7 @@
                                 (update :interpretation loss-interp)
                                 (update :status status-codes))]
     (merge {:id id}
-           {:evidence_line  evidence}
+           {:evidence  evidence}
            {:type "http://datamodel.clinicalgenome.org/clingen.owl#CG_000083"}
            interpreted-fields)))
 
@@ -140,30 +139,38 @@
  ;; "maxResults" 1,
  ;; "total" 45596,
 
-(defn transform-jira-issues
-  "Transform issues from JIRA into data model-ish format"
-  []
-  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" ORDER BY updated DESC"
-;"project = ISCA AND type = \"ISCA Gene Curation\" AND \"ISCA Haploinsufficiency score\" in (3) ORDER BY updated DESC"
+(defn fetch-issues
+  [start-time]
+  )
+
+(defn fetch-issue-block
+  "Fetch a block of issues, given start time and end time"
+  [start-time start max-results]
+  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open ORDER BY updated DESC"
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
                               {:jql query-str
-                               :startAt 0
-                               :maxResults 1}
+                               :startAt start
+                               :maxResults max-results}
                               :content-type "application/json"
-                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
-        issues (-> result :body json/parse-string (get "issues"))
-        messages (into (map transform-gene-haploinsufficiency issues)
-                       (map transform-gene-triplosensitivity issues))
-        ]
-    ;; (with-open [p (kafka/producer)]
-    ;;   (doseq [m messages]
-    ;;     (.send p (ProducerRecord. "gene_dosage" (:id m) (json/generate-string m)))))
-;    (with-open [w (clojure.java.io/writer "data/dosage_interps.json")])
+                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})]
+        (-> result :body json/parse-string (get "issues"))))
 
-    ;; (doseq [m messages]
-    ;;   (println (json/generate-string m {:pretty true})))
-                                        ;    (clojure.pprint/pprint (-> result :body json/parse-string))
-    messages))
+(defn transform-issues
+  "Transform issues from JIRA into data model-ish format"
+  [issues]
+  (into (map transform-gene-haploinsufficiency issues)
+        (map transform-gene-triplosensitivity issues)))
 
+(defn push-messages
+  "Push incoming messages to Kafka-based data exchange"
+  [messages]
+  (with-open [p (kafka/producer)]
+    (doseq [m messages]
+      (.send p (ProducerRecord. "gene_dosage" (:id m) (json/generate-string m))))))
 
+(defn write-messages
+  "Write incoming messages to file"
+  [messages out-file]
+  (with-open [w (clojure.java.io/writer out-file)]
+    (json/generate-stream messages w {:pretty true})))
