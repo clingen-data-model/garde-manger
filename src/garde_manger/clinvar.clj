@@ -14,13 +14,13 @@
 
 (def term-iri-map {"copy number gain" "http://purl.obolibrary.org/obo/SO_0001911"
                    "copy number loss" "http://purl.obolibrary.org/obo/SO_0001912"
-                   "Benign" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000109"
-                   "Likely benign" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000108"
-                   "Uncertain significance" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000107"
-                   "Likely Pathogenic" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000106"
-                   "Pathogenic" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000105"})
+                   "Benign" "http://datamodel.clinicalgenome.org/terms/CG_000109"
+                   "Likely benign" "http://datamodel.clinicalgenome.org/terms/CG_000108"
+                   "Uncertain significance" "http://datamodel.clinicalgenome.org/terms/CG_000107"
+                   "Likely pathogenic" "http://datamodel.clinicalgenome.org/terms/CG_000106"
+                   "Pathogenic" "http://datamodel.clinicalgenome.org/terms/CG_000105"})
 
-;; TODO import this term in OWL: http://datamodel.clinicalgenome.org/clingen.owl#CG_000110 (Region Context)
+;; TODO import this term in OWL: http://datamodel.clinicalgenome.org/terms/CG_000110 (Region Context)
 
 (def base-iris {:region "https://search.clinicalgenome.org/kb/regions/CV_"
                 :clinvar "https://www.ncbi.nlm.nih.gov/clinvar/variation/"
@@ -81,7 +81,7 @@
                                 :stop (attr % :stop)
                                 :reference (attr % :referenceAllele)
                                 ;; region context/contextual region
-                                :type "http://datamodel.clinicalgenome.org/clingen.owl#CG_000110"}))
+                                :type "http://datamodel.clinicalgenome.org/terms/CG_000117"}))
          locs)))
 
 (defn construct-alteration
@@ -121,7 +121,8 @@
                                 (term-iri-map (xml1-> % :ClinicalSignificance
                                                       :Description
                                                       text))
-                                :type "http://purl.obolibrary.org/obo/SEPIO_0000000"}))
+                                :type "http://datamodel.clinicalgenome.org/terms/CG_000083"
+                                :alteration (str (:clinvar base-iris) (attr z :ID))}))
          interps)))
 
 (defn construct-clingen-import
