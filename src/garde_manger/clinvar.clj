@@ -70,7 +70,7 @@
                    :ReferenceClinVarAssertion
                    :MeasureSet
                    (attr :ID))]
-    (map #(into {} (filter val {:region (str (:region base-iris) id)
+    (map #(into {} (filter val {:id (str (:region base-iris) id)
                                 :assembly (attr % :Assembly)
                                 :chromosome (attr % :Chr)
                                 :inner-start (attr % :innerStart)
