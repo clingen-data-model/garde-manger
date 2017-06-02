@@ -22,7 +22,8 @@
 
 ;; TODO import this term in OWL: http://datamodel.clinicalgenome.org/terms/CG_000110 (Region Context)
 
-(def base-iris {:region "https://search.clinicalgenome.org/kb/regions/CV_"
+(def base-iris {:region "https://search.clinicalgenome.org/kb/regions/CVV_"
+                :region-context "https://search.clinicalgenome.org/kb/regions/CVMS_"
                 :clinvar "https://www.ncbi.nlm.nih.gov/clinvar/variation/"
                 :clinvar-org "https://www.ncbi.nlm.nih.gov/clinvar/submitters/"
                 :assertion "https://search.clinicalgenome.org/kb/assertions/CV_"})
@@ -70,7 +71,8 @@
                    :ReferenceClinVarAssertion
                    :MeasureSet
                    (attr :ID))]
-    (map #(into {} (filter val {:id (str (:region base-iris) id)
+    (map #(into {} (filter val {:id (str (:region-context base-iris) id)
+                                :region (str (:region base-iris) (attr z :ID))
                                 :assembly (attr % :Assembly)
                                 :chromosome (attr % :Chr)
                                 :inner-start (attr % :innerStart)
@@ -122,17 +124,14 @@
                                                       :Description
                                                       text))
                                 :type "http://datamodel.clinicalgenome.org/terms/CG_000083"
-                                :alteration (str (:clinvar base-iris) (attr z :ID))}))
+                                :variation (str (:clinvar base-iris) (attr z :ID))}))
          interps)))
 
 (defn construct-clingen-import
   "Deconstruct a ClinVar Set into the region, alterations, and assertions"
   [node]
-  ;; {:cx-regions (construct-regions node)
-  ;;  :alteration (construct-alteration node)
-  ;;  :interpretations (construct-interpretations node)}
-  (concat (conj (construct-regions node)
-                (construct-alteration node))
+  (concat [(construct-alteration node)]
+          (construct-regions node)
           (construct-interpretations node)))
 
 (defn clinvar-cnvs
@@ -145,7 +144,8 @@
                    :content
                    (filter #(or (type= % "copy number loss")
                                 (type= % "copy number gain")))
-                   (map construct-clingen-import)) out)))
+                   (mapcat construct-clingen-import)
+                   (take 25)) out)))
 
 ;; This code seems to avoid the 'head retention' problem
 ;; http://blog.korny.info/2014/03/08/xml-for-fun-and-profit.html#laziness---lose-your-head
