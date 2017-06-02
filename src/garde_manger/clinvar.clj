@@ -144,8 +144,7 @@
                    :content
                    (filter #(or (type= % "copy number loss")
                                 (type= % "copy number gain")))
-                   (mapcat construct-clingen-import)
-                   (take 25)) out)))
+                   (mapcat construct-clingen-import)) out)))
 
 ;; This code seems to avoid the 'head retention' problem
 ;; http://blog.korny.info/2014/03/08/xml-for-fun-and-profit.html#laziness---lose-your-head
