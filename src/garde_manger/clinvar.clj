@@ -7,6 +7,12 @@
             [clojure.data.zip.xml :as xdzip :refer [xml-> xml1-> attr attr= text]]
             [clojure.pprint :as pp :refer [pprint]]))
 
+;; TODO there seems to be an error with the ClinVar variation id, 
+
+;; https://www.ncbi.nlm.nih.gov/clinvar/variation/202214/
+;; gets ID https://www.ncbi.nlm.nih.gov/clinvar/variation/14466133 in our system
+;; Probably misusing ID from XML
+
 ;;(def cvxml "data/ClinVarFullRelease_2016-11.xml")
 ;;(def cvxml "data/RCV000077146.xml")
 (def cvxml "data/clinvar.xml")
@@ -71,8 +77,9 @@
                    :ReferenceClinVarAssertion
                    :MeasureSet
                    (attr :ID))]
-    (map #(into {} (filter val {:id (str (:region-context base-iris) id)
-                                :region (str (:region base-iris) (attr z :ID))
+    (map #(into {} (filter val {:id (str (:region-context base-iris) id "-"
+                                         (attr % :Assembly))
+                                :region (str (:region base-iris) id)
                                 :assembly (attr % :Assembly)
                                 :chromosome (attr % :Chr)
                                 :inner-start (attr % :innerStart)
@@ -91,7 +98,10 @@
   [node]
   (let [z (zip/xml-zip node)
         loc (xml1-> z :ReferenceClinVarAssertion :MeasureSet)
-        id (attr z :ID)]
+        id (xml1-> z
+                   :ReferenceClinVarAssertion
+                   :MeasureSet
+                   (attr :ID))]
     (into {} (filter val {:id (str (:clinvar base-iris) id)
                           :region (str (:region base-iris) id)
                           ;; Alteration type is directly analogous SO type
@@ -110,7 +120,11 @@
   "Construct interpretation nodes relative to an alteration"
   [node]
   (let [z (zip/xml-zip node)
-        interps (xml-> z :ClinVarAssertion)]
+        interps (xml-> z :ClinVarAssertion)
+        var (xml1-> z
+                    :ReferenceClinVarAssertion
+                    :MeasureSet
+                    (attr :ID))]
     (map #(into {} (filter val {:id (str (:assertion base-iris)
                                          (xml1-> % :ClinVarAccession (attr :Acc)))
                                 :version (some->
@@ -124,7 +138,7 @@
                                                       :Description
                                                       text))
                                 :type "http://datamodel.clinicalgenome.org/terms/CG_000083"
-                                :variation (str (:clinvar base-iris) (attr z :ID))}))
+                                :variation (str (:clinvar base-iris) var)}))
          interps)))
 
 (defn construct-clingen-import
