@@ -43,30 +43,30 @@
 ;; Translation of raw scores into IRI-based types
 ;; note difference between interpretations for loss vs gain
 (def loss-interp 
-  {"3" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000092"
-   "2" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000093"
-   "1" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000095"
-   "0" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000096"
-   "30: Gene associated with autosomal recessive phenotype" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000094"
-   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000120"})
+  {"3" "http://datamodel.clinicalgenome.org/terms/CG_000092"
+   "2" "http://datamodel.clinicalgenome.org/terms/CG_000093"
+   "1" "http://datamodel.clinicalgenome.org/terms/CG_000095"
+   "0" "http://datamodel.clinicalgenome.org/terms/CG_000096"
+   "30: Gene associated with autosomal recessive phenotype" "http://datamodel.clinicalgenome.org/terms/CG_000094"
+   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000120"})
 
 (def gain-interp
-  {"3" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000097"
-   "2" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000098"
-   "1" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000099"
-   "0" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000100"
-   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000121"})
+  {"3" "http://datamodel.clinicalgenome.org/terms/CG_000097"
+   "2" "http://datamodel.clinicalgenome.org/terms/CG_000098"
+   "1" "http://datamodel.clinicalgenome.org/terms/CG_000099"
+   "0" "http://datamodel.clinicalgenome.org/terms/CG_000100"
+   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000121"})
 
 (def status-codes
-  {"Closed" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000114"
-   "Under Group Review" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000117"
-   "Open" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000119"
-   "Reopened" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000118"
-   "Under Primary Review" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000115"
-   "Under Secondary Review" "http://datamodel.clinicalgenome.org/clingen.owl#CG_000116"})
+  {"Closed" "http://datamodel.clinicalgenome.org/terms/CG_000114"
+   "Under Group Review" "http://datamodel.clinicalgenome.org/terms/CG_000117"
+   "Open" "http://datamodel.clinicalgenome.org/terms/CG_000119"
+   "Reopened" "http://datamodel.clinicalgenome.org/terms/CG_000118"
+   "Under Primary Review" "http://datamodel.clinicalgenome.org/terms/CG_000115"
+   "Under Secondary Review" "http://datamodel.clinicalgenome.org/terms/CG_000116"})
 
-(def loss-evidence "http://datamodel.clinicalgenome.org/clingen.owl#CG_000111")
-(def gain-evidence "http://datamodel.clinicalgenome.org/clingen.owl#CG_000112")
+(def loss-evidence "http://datamodel.clinicalgenome.org/terms/CG_000111")
+(def gain-evidence "http://datamodel.clinicalgenome.org/terms/CG_000112")
 
 ;; Fields where we want to extract a more deeply nested value to represent
 ;; in the JSON, or otherwise apply some appropriate transformation
@@ -111,7 +111,7 @@
                                 (update :status status-codes))]
     (merge {:id id}
            {:evidence  evidence}
-           {:type "http://datamodel.clinicalgenome.org/clingen.owl#CG_000083"}
+           {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
            interpreted-fields)))
 
 (defn transform-gene-triplosensitivity
@@ -129,7 +129,7 @@
                                 (update :status status-codes))]
     (merge {:id id}
            {:evidence_line  evidence}
-           {:type "http://datamodel.clinicalgenome.org/clingen.owl#CG_000083"}
+           {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
            interpreted-fields)))
 
 

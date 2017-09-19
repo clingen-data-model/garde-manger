@@ -158,6 +158,7 @@
                    :content
                    (filter #(or (type= % "copy number loss")
                                 (type= % "copy number gain")))
+                   (take 5)
                    (mapcat construct-clingen-import)) out)))
 
 ;; This code seems to avoid the 'head retention' problem
