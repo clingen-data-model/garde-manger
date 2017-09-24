@@ -9,6 +9,7 @@
 ;; Topic to use for gene_dosage 
 (def kafka-topic "gene_dosage")
 (def dosage-root "https://search.clinicalgenome.org/kb/gene-dosage/")
+(def start-date "2011-01-01")
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -146,15 +147,15 @@
 (defn fetch-issue-block
   "Fetch a block of issues, given start time and end time"
   [start-time start max-results]
-  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open ORDER BY updated DESC"
+  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete ORDER BY updated DESC"
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
                               {:jql query-str
                                :startAt start
                                :maxResults max-results}
                               :content-type "application/json"
-                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})]
-        (-> result :body json/parse-string (get "issues"))))
+                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})] 
+    (-> result :body json/parse-string (get "issues"))))
 
 (defn transform-issues
   "Transform issues from JIRA into data model-ish format"

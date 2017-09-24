@@ -8,11 +8,11 @@
    "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "security.protocol" "SSL"
-   "ssl.truststore.location" "ssl/client.truststore.jks"
-   "ssl.truststore.password" "test1234"
-   "ssl.keystore.location" "ssl/client.keystore.jks"
-   "ssl.keystore.password" "test1234"
-   "ssl.key.password" "test1234"
+   "ssl.truststore.location" "keys/garde.truststore.jks"
+   "ssl.truststore.password" (System/getenv "GARDE_KEY_PASS")
+   "ssl.keystore.location" "keys/garde.keystore.jks"
+   "ssl.keystore.password" (System/getenv "GARDE_KEY_PASS")
+   "ssl.key.password" (System/getenv "GARDE_KEY_PASS")
    })
 
 ;; Java Properties object defining configuration of Kafka client
@@ -34,7 +34,7 @@
   "Send msg into the defined kafka instance. Message must be serialized appropriately first"
   [msg]
   (let [producer (producer)
-        payload (ProducerRecord. "test" "keyn" msg)]
+        payload (ProducerRecord. "test" "key" msg)]
     (println "sending message " msg)
     (.send producer payload)
     (.close producer)))
