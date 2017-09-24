@@ -134,18 +134,15 @@
            interpreted-fields)))
 
 
-;0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\", \"40: Dosage sensitivity unlikely\"
+                                        ;0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\", \"40: Dosage sensitivity unlikely\"
 
- ;; "startAt" 0,
- ;; "maxResults" 1,
- ;; "total" 45596,
+;; "startAt" 0,
+;; "maxResults" 1,
+;; "total" 45596,
 
-(defn fetch-issues
-  [start-time]
-  )
 
-(defn fetch-issue-block
-  "Fetch a block of issues, given start time and end time"
+(defn jira-issues
+  "Return a lazy seq of blocks of raw issues, retrieved from JIRA"
   [start-time start max-results]
   (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete ORDER BY updated DESC"
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
@@ -154,8 +151,14 @@
                                :startAt start
                                :maxResults max-results}
                               :content-type "application/json"
-                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})] 
-    (-> result :body json/parse-string (get "issues"))))
+                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
+        result-body (-> result :body json/parse-string)
+        remaining (- (result-body "total") (+ start max-results))]
+    (if (> 0 remaining)
+      (lazy-seq
+       (cons (result-body "issues")
+             (jira-issues start-time (+ start max-results) max-results)))
+      )))
 
 (defn transform-issues
   "Transform issues from JIRA into data model-ish format"
