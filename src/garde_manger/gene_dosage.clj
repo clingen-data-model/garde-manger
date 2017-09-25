@@ -10,6 +10,7 @@
 (def kafka-topic "gene_dosage")
 (def dosage-root "https://search.clinicalgenome.org/kb/gene-dosage/")
 (def start-date "2011-01-01")
+(def batch-size 50)
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -171,7 +172,7 @@
   [messages]
   (with-open [p (kafka/producer)]
     (doseq [m messages]
-      (.send p (ProducerRecord. "kafka_topic" (:id m) (json/generate-string m))))))
+      (.send p (ProducerRecord. kafka-topic (:id m) (json/generate-string m))))))
 
 (defn write-messages
   "Write incoming messages to file"
@@ -182,4 +183,5 @@
 (defn send-update-to-exchange
   "Update data exchange with "
   [datetime]
-  ())
+  (doseq [batch (jira-issues datetime 0 batch-size)]
+    (push-messages batch)))
