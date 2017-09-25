@@ -144,7 +144,7 @@
 (defn jira-issues
   "Return a lazy seq of blocks of raw issues, retrieved from JIRA"
   [start-time start max-results]
-  (let [query-str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete ORDER BY updated DESC"
+  (let [query-str (str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete AND updated > " start-time " ORDER BY updated DESC")
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
                               {:jql query-str
@@ -154,11 +154,11 @@
                               :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
         result-body (-> result :body json/parse-string)
         remaining (- (result-body "total") (+ start max-results))]
-    (if (> 0 remaining)
+    (if (> remaining 0)
       (lazy-seq
        (cons (result-body "issues")
              (jira-issues start-time (+ start max-results) max-results)))
-      )))
+      (list (result-body "issues")))))
 
 (defn transform-issues
   "Transform issues from JIRA into data model-ish format"
@@ -171,10 +171,15 @@
   [messages]
   (with-open [p (kafka/producer)]
     (doseq [m messages]
-      (.send p (ProducerRecord. "gene_dosage" (:id m) (json/generate-string m))))))
+      (.send p (ProducerRecord. "kafka_topic" (:id m) (json/generate-string m))))))
 
 (defn write-messages
   "Write incoming messages to file"
   [messages out-file]
   (with-open [w (clojure.java.io/writer out-file)]
     (json/generate-stream messages w {:pretty true})))
+
+(defn send-update-to-exchange
+  "Update data exchange with "
+  [datetime]
+  ())
