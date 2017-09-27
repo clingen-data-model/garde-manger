@@ -111,7 +111,7 @@
         interpreted-fields (->  mapped-valued-fields 
                                 (update :interpretation loss-interp)
                                 (update :status status-codes))]
-    (merge {:id id}
+    (merge {:iri id}
            {:evidence  evidence}
            {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
            interpreted-fields)))
@@ -129,7 +129,7 @@
         interpreted-fields (->  mapped-valued-fields 
                                 (update :interpretation gain-interp)
                                 (update :status status-codes))]
-    (merge {:id id}
+    (merge {:iri id}
            {:evidence_line  evidence}
            {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
            interpreted-fields)))
@@ -172,7 +172,7 @@
   [messages]
   (with-open [p (kafka/producer)]
     (doseq [m messages]
-      (.send p (ProducerRecord. kafka-topic (:id m) (json/generate-string m))))))
+      (.send p (ProducerRecord. kafka-topic (:iri m) (json/generate-string m))))))
 
 (defn write-messages
   "Write incoming messages to file"
@@ -182,6 +182,6 @@
 
 (defn send-update-to-exchange
   "Update data exchange with "
-  [datetime]
+  [datetime] 
   (doseq [batch (jira-issues datetime 0 batch-size)]
-    (push-messages batch)))
+    (push-messages (transform-issues batch))))

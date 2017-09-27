@@ -7,4 +7,5 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  (println "pushing gene dosage to kafka")
+  (gene-dosage/send-update-to-exchange gene-dosage/start-date))
