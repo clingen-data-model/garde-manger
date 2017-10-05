@@ -1,0 +1,92 @@
+- hosts: all
+  tasks: 
+    - name: Compile uberjar for garde manger
+      local_action: command lein uberjar
+    - name: Setup group
+      become: true
+      group:
+        name: garde
+        system: yes
+    - name: Setup user
+      become: true
+      user:
+        name: garde
+        system: yes
+        group: garde
+    - name: Ensure target directory exists on remote
+      become: true
+      file:
+        state: directory
+        path: /usr/local/garde
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Add lib directory
+      become: true
+      file:
+        state: directory
+        path: /usr/local/garde/lib
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Add keys directory
+      become: true
+      file:
+        state: directory
+        path: /usr/local/garde/keys
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Add log directory
+      become: true
+      file:
+        state: directory
+        path: /usr/local/garde/log
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Add state directory
+      become: true
+      file:
+        state: directory
+        path: /usr/local/garde/state
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Copy uberjar to target
+      become: true
+      copy:
+        src: ~/code/garde-manger/target/uberjar/garde-manger-0.1.0-SNAPSHOT-standalone.jar
+        dest: /usr/local/garde/lib
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Copy current keystore to target
+      become: true
+      copy:
+        src: ~/code/garde-manger/keys/garde.keystore.jks
+        dest: /usr/local/garde/keys
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Copy current truststore to target
+      become: true
+      copy:
+        src: ~/code/garde-manger/keys/garde.truststore.jks
+        dest: /usr/local/garde/keys
+        owner: garde
+        group: garde
+        mode: 0755
+    - name: Copy systemd unit to target
+      become: true
+      template:
+        src: garde.service
+        dest: /etc/systemd/system/garde.service
+    - name: start garde
+      become: true
+      systemd:
+        name: garde
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+        

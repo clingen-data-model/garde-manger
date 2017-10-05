@@ -1,9 +1,11 @@
 (ns garde-manger.kafka
+  (:require [clojure.tools.logging :as log])
   (:import java.util.Properties
            [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
 
 (def client-properties
   {"bootstrap.servers" "tndeb:9093"
+   ;; "bootstrap.servers" (System/getenv "DATA_EXCHANGE_HOST")
    "acks" "0"
    "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"
@@ -12,8 +14,7 @@
    "ssl.truststore.password" (System/getenv "GARDE_KEY_PASS")
    "ssl.keystore.location" "keys/garde.keystore.jks"
    "ssl.keystore.password" (System/getenv "GARDE_KEY_PASS")
-   "ssl.key.password" (System/getenv "GARDE_KEY_PASS")
-   })
+   "ssl.key.password" (System/getenv "GARDE_KEY_PASS")})
 
 ;; Java Properties object defining configuration of Kafka client
 (defn client-configuration 
@@ -21,6 +22,7 @@
   []
   (let [props (new Properties)]
     (doseq [p client-properties]
+      (log/info "client-configuration adding " (p 0) (p 1))
       (.put props (p 0) (p 1)))
     props))
 

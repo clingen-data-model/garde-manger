@@ -2,15 +2,22 @@
   (:require [clj-http.client :as http]
             [cheshire.core :as json]
             [clojure.set :refer [rename-keys]]
-            [garde-manger.kafka :as kafka])
+            [garde-manger.kafka :as kafka]
+            [clojure.java.io :as io]
+            [clojure.tools.logging :as log])
   (:import java.util.Properties
+           java.time.LocalDateTime
+           java.time.format.DateTimeFormatter
            [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
 
 ;; Topic to use for gene_dosage 
 (def kafka-topic "gene_dosage")
 (def dosage-root "https://search.clinicalgenome.org/kb/gene-dosage/")
 (def start-date "2011-01-01")
+;;(def start-date "2017-10-04")
 (def batch-size 50)
+(def last-polled-file "state/last-polled")
+(def date-time-format (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm"))
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -145,7 +152,7 @@
 (defn jira-issues
   "Return a lazy seq of blocks of raw issues, retrieved from JIRA"
   [start-time start max-results]
-  (let [query-str (str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete AND updated > " start-time " ORDER BY updated DESC")
+  (let [query-str (str "project = ISCA AND type = \"ISCA Gene Curation\" AND status != Open AND resolution = Complete AND updated > '" start-time "' ORDER BY updated DESC")
         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
         result (http/get url {:query-params 
                               {:jql query-str
@@ -155,6 +162,7 @@
                               :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
         result-body (-> result :body json/parse-string)
         remaining (- (result-body "total") (+ start max-results))]
+    (log/info "Retrieving messages from " start ", " (result-body "total") " total.")
     (if (> remaining 0)
       (lazy-seq
        (cons (result-body "issues")
@@ -181,7 +189,28 @@
     (json/generate-stream messages w {:pretty true})))
 
 (defn send-update-to-exchange
-  "Update data exchange with "
+  "Update data exchange with issues modified after given time"
   [datetime] 
   (doseq [batch (jira-issues datetime 0 batch-size)]
     (push-messages (transform-issues batch))))
+
+(defn exchange-update-loop
+  "Loop to update data exchange with messages updated after current date and time"
+  []
+  (while true
+    (let [last-polled (if (.exists (io/as-file last-polled-file))
+                        (slurp last-polled-file)
+                        start-date)
+          ;; TODO make sure this is in alignment with timezones used in JIRA
+          ;; ideally automatically
+          current-time (-> (LocalDateTime/now) (.format date-time-format))]
+      ;; Update last polled
+      (spit last-polled-file current-time)
+      (println "Querying JIRA from " last-polled)
+      (log/info "Querying JIRA from " last-polled)
+      ;; TODO Consider using current time as end-time for search to avoid
+      ;; double-pushing entities updated between polling and now
+      (send-update-to-exchange last-polled)
+      ;; Sleep for five minutes
+      (Thread/sleep (* 1000 60)))))
+

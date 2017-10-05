@@ -1,0 +1,16 @@
+[Unit]
+Description=ClinGen Data Exchange garde-manger
+After=network.target
+
+[Service]
+Type=simple
+User=garde
+Group=garde
+WorkingDirectory=/usr/local/garde
+Environment=GARDE_KEY_PASS={{ garde_key_pass }}
+Environment=DATA_EXCHANGE_HOST={{ data_exchange_host }}
+ExecStart=/usr/bin/java -jar /usr/local/garde/lib/garde-manger-0.1.0-SNAPSHOT-standalone.jar
+ExecStop=/bin/kill -TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
