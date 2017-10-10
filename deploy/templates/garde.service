@@ -9,6 +9,8 @@ Group=garde
 WorkingDirectory=/usr/local/garde
 Environment=GARDE_KEY_PASS={{ garde_key_pass }}
 Environment=DATA_EXCHANGE_HOST={{ data_exchange_host }}
+Environment=NCBI_JIRA_USER={{ ncbi_jira_user }}
+Environment=NCBI_JIRA_PASSWORD={{ ncbi_jira_password }}
 ExecStart=/usr/bin/java -jar /usr/local/garde/lib/garde-manger-0.1.0-SNAPSHOT-standalone.jar
 ExecStop=/bin/kill -TERM $MAINPID
 

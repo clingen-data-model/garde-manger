@@ -159,7 +159,8 @@
                                :startAt start
                                :maxResults max-results}
                               :content-type "application/json"
-                              :basic-auth ["thnelson@geisinger.edu", "***REMOVED***"]})
+                              :basic-auth [(System/getenv "NCBI_JIRA_USER")
+                                           (System/getenv "NCBI_JIRA_PASSWORD")]})
         result-body (-> result :body json/parse-string)
         remaining (- (result-body "total") (+ start max-results))]
     (log/info "Retrieving messages from " start ", " (result-body "total") " total.")

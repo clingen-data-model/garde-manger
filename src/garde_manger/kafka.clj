@@ -4,8 +4,7 @@
            [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
 
 (def client-properties
-  {"bootstrap.servers" "tndeb:9093"
-   ;; "bootstrap.servers" (System/getenv "DATA_EXCHANGE_HOST")
+  {"bootstrap.servers" (System/getenv "DATA_EXCHANGE_HOST")
    "acks" "0"
    "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"
