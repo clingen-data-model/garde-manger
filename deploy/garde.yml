@@ -1,5 +1,10 @@
 - hosts: all
   tasks: 
+    - name: Install java-8
+      apt:
+        name: openjdk-8-jdk
+    - name: Set java8 to default
+      command: /usr/sbin/update-java-alternatives -s java-1.8.0-openjdk-amd64
     - name: Compile uberjar for garde manger
       local_action: command lein uberjar
     - name: Setup group

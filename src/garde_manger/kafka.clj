@@ -5,6 +5,7 @@
 
 (def client-properties
   {"bootstrap.servers" (System/getenv "DATA_EXCHANGE_HOST")
+   ;;"bootstrap.servers" "exchange.clinicalgenome.org:9093"
    "acks" "0"
    "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
    "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"
@@ -21,7 +22,6 @@
   []
   (let [props (new Properties)]
     (doseq [p client-properties]
-      (log/info "client-configuration adding " (p 0) (p 1))
       (.put props (p 0) (p 1)))
     props))
 

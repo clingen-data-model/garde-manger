@@ -4,7 +4,8 @@
             [clojure.set :refer [rename-keys]]
             [garde-manger.kafka :as kafka]
             [clojure.java.io :as io]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.pprint :as pprint :refer [pprint]])
   (:import java.util.Properties
            java.time.LocalDateTime
            java.time.format.DateTimeFormatter
@@ -178,10 +179,9 @@
 
 (defn push-messages
   "Push incoming messages to Kafka-based data exchange"
-  [messages]
-  (with-open [p (kafka/producer)]
-    (doseq [m messages]
-      (.send p (ProducerRecord. kafka-topic (:iri m) (json/generate-string m))))))
+  [messages producer]
+  (doseq [m messages]
+    (.send producer (ProducerRecord. kafka-topic (:iri m) (json/generate-string m)))))
 
 (defn write-messages
   "Write incoming messages to file"
@@ -191,27 +191,30 @@
 
 (defn send-update-to-exchange
   "Update data exchange with issues modified after given time"
-  [datetime] 
-  (doseq [batch (jira-issues datetime 0 batch-size)]
-    (push-messages (transform-issues batch))))
+  [datetime producer] 
+  (doseq [batch (jira-issues datetime 0 batch-size)
+          messages (transform-issues batch)]
+    (log/info "sending messages: " (with-out-str (pprint messages)))
+    (push-messages messages producer)))
 
 (defn exchange-update-loop
   "Loop to update data exchange with messages updated after current date and time"
   []
-  (while true
-    (let [last-polled (if (.exists (io/as-file last-polled-file))
-                        (slurp last-polled-file)
-                        start-date)
-          ;; TODO make sure this is in alignment with timezones used in JIRA
-          ;; ideally automatically
-          current-time (-> (LocalDateTime/now) (.format date-time-format))]
-      ;; Update last polled
-      (spit last-polled-file current-time)
-      (println "Querying JIRA from " last-polled)
-      (log/info "Querying JIRA from " last-polled)
-      ;; TODO Consider using current time as end-time for search to avoid
-      ;; double-pushing entities updated between polling and now
-      (send-update-to-exchange last-polled)
-      ;; Sleep for five minutes
-      (Thread/sleep (* 1000 60)))))
+  (with-open [p (kafka/producer)]
+    (while true
+      (let [last-polled (if (.exists (io/as-file last-polled-file))
+                          (slurp last-polled-file)
+                          start-date)
+            ;; TODO make sure this is in alignment with timezones used in JIRA
+            ;; ideally automatically
+            current-time (-> (LocalDateTime/now) (.format date-time-format))]
+        ;; Update last polled
+        (spit last-polled-file current-time)
+        (println "Querying JIRA from " last-polled)
+        (log/info "Querying JIRA from " last-polled)
+        ;; TODO Consider using current time as end-time for search to avoid
+        ;; double-pushing entities updated between polling and now
+        (send-update-to-exchange last-polled p)
+        ;; Sleep for five minutes
+        (Thread/sleep (* 1000 60 5))))))
 

@@ -8,5 +8,4 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (log/info (clojure.pprint/pprint (into {}  (System/getenv))))
   (gene-dosage/exchange-update-loop))
