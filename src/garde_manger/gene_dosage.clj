@@ -127,6 +127,7 @@
 (defn transform-gene-triplosensitivity
   "Transform the triplosensitivity side of interpretations into a standard format"
   [item]
+  ;; (println (vector? item))
   (let [id (str dosage-root (item "key") "-T")
         fields (item "fields")
         evidence (extract-evidence-line fields gain-evidence-fields gain-evidence id)
@@ -177,11 +178,13 @@
   (into (map transform-gene-haploinsufficiency issues)
         (map transform-gene-triplosensitivity issues)))
 
-(defn push-messages
+(defn push-message
   "Push incoming messages to Kafka-based data exchange"
-  [messages producer]
-  (doseq [m messages]
-    (.send producer (ProducerRecord. kafka-topic (:iri m) (json/generate-string m)))))
+  [message producer]
+  (let [msg-str (json/generate-string message)]
+    (println "in push-messages")
+    (pprint message)
+    (.send producer (ProducerRecord. kafka-topic (:iri message) msg-str))))
 
 (defn write-messages
   "Write incoming messages to file"
@@ -193,9 +196,9 @@
   "Update data exchange with issues modified after given time"
   [datetime producer] 
   (doseq [batch (jira-issues datetime 0 batch-size)
-          messages (transform-issues batch)]
-    (log/info "sending messages: " (with-out-str (pprint messages)))
-    (push-messages messages producer)))
+          message (transform-issues batch)]
+    (log/info "sending messages: " (with-out-str (pprint message)))
+    (push-message message producer)))
 
 (defn exchange-update-loop
   "Loop to update data exchange with messages updated after current date and time"
