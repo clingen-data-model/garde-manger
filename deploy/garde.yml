@@ -3,8 +3,10 @@
     - name: Install java-8
       apt:
         name: openjdk-8-jdk
+      become: true
     - name: Set java8 to default
       command: /usr/sbin/update-java-alternatives -s java-1.8.0-openjdk-amd64
+      become: true
     - name: Compile uberjar for garde manger
       local_action: command lein uberjar
     - name: Setup group
