@@ -2196,3 +2196,248 @@
      "value" "Monoallelic",
      "id" "10226"},
     "aggregatetimeoriginalestimate" nil}}]))
+
+(def sample-translated-issues `(`({:iri "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-T",
+   :evidence_line (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-12T17:36:22.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/8289",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description
+   "Bidart et al. 2017 (PMID: 27906199) describe 4 individuals with de novo duplications involving ARID1A (and other genes).  The authors classified the phenotypes of the individuals as \"similar\" with \"microcephaly,intellectual disability, delayed motor milestones, hand and foot anomalies, growth impairment, constipation, frequent airway infections, dysmorphic facial features, and stereotypies.\"  The minimal critical region between these 4 individuals included all of ARID1A as well as part of the PIGV gene.  Because these duplications all include other genes, we will not formally count this as evidence for triplosensitivity.   Additional evidence is needed to evaluate the potential consequences of full gene duplications of ARID1A."}
+  {:iri "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-T",
+   :evidence_line
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-T-EL-T1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/ 22750301",
+     :description
+     "Guo et al (2012) identified large duplications involving CNTN4 in two individuals with autism using Illumina HumanCNV370-Quad BeadChip . The 2.4 Mb gain interval encompassed several other genes; however, 1.6 Mb gain disrupted only CNTN4 and CNTN6.\r\n",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000112"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-18T00:38:01.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/152330",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description
+   "At this time there is no evidence that supports the triplosensitivity of CNTN4.\r\n\r\nOf note, In a study comparing a large cohort of children with ID and/or DD to unaffected adult controls, the incidence of observed gains of CNTN4 was  15/15,767 cases vs 17/8,329 controls (PMID:21841781)"}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-T",
+   :evidence_line
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-T-EL-T1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/26257835",
+     :description
+     "Hu et al (2015) studied of 3,724 individuals with multiple congenital anomalies, heart defect, short stature, developmental delay (DD), intellectual disability (ID), autism spectrum disorder (AS), and seizures (SZs) using NimbleGen 135K oligonucleotide array. The authors reported 3p26.3 copy number gains encompassing CNTN6 and additional genes (CHL1/CNTN6 and CHL1/CNTN6/CNTN4, respectively) in only two individuals with NDDs. The CHL1/CNTN6 duplication detected in an individual with obesity, ADHD, and bipolar was inherited from mother with psychiatric problem. Parental study was not available for the CHL1/CNTN6/CNTN4 duplication detected in an individual with attention deficit hyperactivity disorder, obsessive–compulsive disorder, and additional physical abnormalities.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000112"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-18T19:54:49.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/27255",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description
+   "In the literature, limited number of individuale been reported with entire CNTN6 duplications. Hu et al (2017) (PMID: 26257835) reported two individuals with variable manifestations of NDDs with CHL1/CNTN6 and CHL1/CNTN6/CNTN4, respectively.\r\n\r\nThere are CNTN6 entire gene duplications in the DECIPHER database as well as in the databases of genomic variants. Therefore, it remains unclear whether the expression of CNTN6 gene has been altered in reported individuals as there is a lack of published functional studies of these CNVs in the databases of genomic variants. \r\n\r\n "}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-27354-T",
+   :evidence_line (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-23T15:35:04.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/84131",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description nil}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-36770-T",
+   :evidence_line (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-27T14:36:35.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/2020",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description nil}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-37489-T",
+   :evidence_line (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-11-01T09:40:05.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/23096",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description nil}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-17644-T",
+   :evidence_line (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-11-08T14:04:12.000-0500",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/51741",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000100",
+   :phenotype nil,
+   :description
+   "Whole gene duplication of WWOX is not currently known to be associated with developmental phenotypes."}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-17644-H",
+   :evidence (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-11-08T14:04:12.000-0500",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/51741",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000094",
+   :description
+   "Mutations and deletions (whole gene and exon-level) affecting both copies of WWOX are associated with autosomal recessive early infantile epileptic encephalopathy and autosomal recessive spinocerebellar ataxia 12. See Mignot et al., 2015 (PMID  25411445) for a discussion of genotype-phenotype associations in these recessive disorders."}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-37489-H",
+   :evidence
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-37489-H-EL-H1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/20473311",
+     :description
+     "The paper by Shoubridge describes missense mutations in males with intellectual disability. \"In addition to moderate to severe intellectual disability in all affected males, seizures, autistic traits, psychiatric problems and delayed early language skills were noted, although none of these additional phenotypes were consistent in all affected individuals in the families.\" The authors showed the mutations reduced the expression of the protein.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-37489-H-EL-H2",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/21479374 ",
+     :description
+     "Morleo et al describe a female patient with a t(X;20) with a severe phenotype that included intellectual disability, infantile seizures, and developmental delay. The authors used BAC FISH to map the breakpoints and found the translocation disrupted IQSEC2, between exons 1 and 2 of the longest transcript, which may also disrupt 5' regulatory sequences for the shorter trasncripts.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-37489-H-EL-H3",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/23674175",
+     :description
+     "The article by Mau-Them et al describes two de novo intragenic duplications and a nonsense mutation in males with severe syndromic ID characterised by \"progressive postnatal microcephaly, absence of speech and midline stereotypic hand movements similar to those observed in Rett or variant Rett syndromes.\" This article also cites the Gandomi reference describing two males with similar features who both have de novo truncating mutations.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-11-01T09:40:05.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/23096",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000092",
+   :description nil}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-36770-H",
+   :evidence (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-27T14:36:35.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/2020",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000096",
+   :description
+   "PMID 9450876 and 21416596 report an association between deletions encompassing EN2 and clinical features of 7q terminal deletion syndrome, however focal deletions of EN2 have not yet been reported in clinical populations."}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-27354-H",
+   :evidence (),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-23T15:35:04.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/84131",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000094",
+   :description
+   "PMID 27588452: Namburi P, (2016): Bi-allelic Truncating Mutations in CEP78, Encoding Centrosomal Protein 78, Cause Cone-Rod Degeneration with Sensorineural Hearing Loss\r\n\r\nPMID 27627988: Fu Q (2017): WES and WGS testing of patients from two independent families with juvenile/adult-onset cone-rod dystrophy and sensorineural hearing loss identified two homozygous rare variants that affect splicing of CEP78.\r\n\r\nPMID 27588451: Nikopoulos K (2016): Exome analysis of a cohort of individuals with cone-rod degeneration (CRD) identified biallelic mutations in CEP78 in three patients from two families: one from Greece and another from Sweden. The Greek patient was homozygous for the c.499+1G>T (IVS3+1G>T) mutation. The Swedish patients were compound heterozygotes for c.499+5G>A (IVS3+5G>A) and c.633delC (p.Trp212Glyfs(∗)18). In addition to CRD, these individuals had hearing deficits."}
+  {:iri
+   "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-H",
+   :evidence
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-H-EL-H1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/25606055 ",
+     :description
+     "Kashevarova et al (2014) identified intragenic CNTN6 deletions predicted to result in intellectual disability (ID) and developmental delay (DD) in two siblings and unrelated individual using the Agilent 44 K and 60 K\r\narrays.\r\n\r\nA 295 kb deletion encompassing exons 3-23 of CNTN6 were detected in two siblings with DD, ID, an abnormal skull shape and facial dysmorphism. Parental studies were not available.\r\nThe individual with a 271.9 kb deletion of CNTN6, involving exons 21-23, had motor DD, ID, atypical autism, and speech delay. This deletion was inherited from an apparently healthy father.\r\n\r\nIn addition, the same author described a 369 kb microdeletion at 3p26.3 overlapping with CNTN6 in a patient with moderate ID, dysarthria, and attention deficit hyperactivity disorder (ADHD). Parental studies were not available (PMID: 24291026).\r\n",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-H-EL-H2",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/26257835",
+     :description
+     "Hu et al (2015) studied of 3,724 individuals with multiple congenital anomalies, heart defect, short stature, developmental delay (DD), intellectual disability (ID), autism spectrum disorder (AS), and seizures (SZs) using NimbleGen 135K oligonucleotide array. The authors reported 3p26.3 CNVs encompassing CNTN6 in 14 individuals (0.4%). Thirteen of the 14 individuals have variable clinical manifestation of neurodevelopmental disorders (NDDs), including ASD, DD, SZs, and attention deficit order (ADHD). The remaining one individual with heart block was a newborn whose development and behavior was normal at 1 year old. In addition, seven of the 14 individuals have dysmorphic features. Family history was available for 13 of the 14 individuals. Twelve families had multiple members with NDDs and neuropsychiatric disorders including ADHD, SZs, ASD, ID, schizophrenia, depression, anxiety, learning disability, and bipolar disorder.\r\n\r\nSeven of the 14 individuals had single copy loss in the 3p26.3 region involving entire CNTN6 gene deletions (2 individuals) or intragenic CNTN6 deletions (5 unrelated individuals, involving exon 2; exons 3-7; exons 5-12; exons 8-23,and exons 2-23, respectively). Parental studies were available in only one individual. The proband and her sister with SZs had a paternally inherited intragenic deletion of CNTN6 encompassing exons 8-23. Although the father had an apparently normal phenotype, the authors suggested an incomplete penetrance.\r\n\r\nIn addition, five of the 14 individuals had intragenic duplications of CNTN6 ranged from 93.95 kb to 1.23 Mb (upstream and exons 1-2; upstream and exons 1-17; exons 2-7; exons 3-23 and downstream; and exons 4-23 and downstream, respectively). No other known pathogenic CNVs or CNVs with unclear clinical significance were observed in any of these individuals. The upstream and exons 1-2 duplication was inherited from phenotypically normal mother. The exons 3–23 and downstream duplication was paternally inherited. The father had bipolar and ADHD. Parental studies were not available in the remaining individuals. ",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-24340-H-EL-H3",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/ 27166760 ",
+     :description
+     "Mercati et al (2017) studied a cohort of 1,534 unrelated individuals with autism spectrum disorder (ASD) and 8,936 controls using Illumina SNP arrays for copy number variations (CNVs). In addition, 212 unrelated individuals with ASD and 217 controls were screened using Sanger sequencing for single nucleotide variants (SNVs) in all exons of CNTN6. Finally, replication whole genome sequencing results were analyzed in a sample of 289 individuals with ASD (200 trios and 89 sib pairs) for SNVs.\r\n\r\nThe authors also accessed to the Brain & Body Genetic Resource Exchange (BBGRE version 3.0;https://bbgre.brc.iop.kcl.ac.uk/) database including 5,891 patients (776 with ASD). They identified CNTN6 deletions in 14/5891 individuals with a significant excess of CNTN6 deletions in patients with ASD (6/776; 0.77%; P = 0.02). This excess of CNTN6 deletions in ASD was even more significant when only small deletions were considered. There were small CNTN6 deletions in 7/5891 individuals listed in BBGRE version 3.0 and 6/776 in patients with ASD (P = 0.002). \r\n\r\nIn this study, both deletions (6/1534 ASD (0.39%) vs 1/8936 controls (0.01%); P = 0.00006) and private coding sequence variants (18/501 ASD vs 535/33480 controls P = 0.0005) were enriched in individuals with ASD with hyperacusis. Several CNTN6 variants identified in this study were considered deleterious by at least two algorithms.\r\n\r\nAll CNVs were inherited (two deletions were transmitted by fathers with ASD). Among the SNVs, one nonsense mutation (W923*) was transmitted by a mother to her two sons with ASD and one variant (P770L) was found to be de novo in an individual with ASD.\r\n\r\nUsing an in vitro assay, they showed that some variants (G310S, I683S, P770S) could affect the promoting effect of CNTN6 on neuritogenesis, whereas others did not (S57L, T958I, R303Q, G678S)\r\n\r\nThe authors mentioned that a total of 47 CNTN6 deletions were listed among 18 506 patients (0.25%) in Decipher database (https://decipher.sanger.ac.uk/index). In contrast to the BBGRE database, the phenotype for autism wasrarely indicated, but several patients carrying CNTN6 deletions have cognitive impairments, intellectual disability, and ASD.\r\n",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-18T19:54:49.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/27255",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000095",
+   :description
+   "The CNTN6 gene is a neural adhesion molecule of the contactin subgroup of the immunoglobulin superfamily and functions as a cell adhesion molecule, which may contribute to the formation of axon connections in the developing nervous system. It has been suggested that these genes participate in pathways that are important for correct brain development. \r\nThe CNTN6 gene is located in the region which includes several more genes (CNTN4, CRBN, CHL1) involved in the clinical picture of the distal 3p deletion syndrome [MIM: 613792].\r\nIn mice, contactin genes are thought to participate in embryonic development and postnatal brain maturation. Moreover, Cntn6−/− deficient mice have impaired motor coordination and abnormal apical dendrite projections of deep layer pyramidal neurons in the visual cortex [PMIDs: 19672956 and 18046458].\r\nIn the literature, single copy loss in the 3p26.3 region involving entire CNTN6 gene deletions or intragenic CNTN6 deletions/duplications have been reported in individuals with variable clinical manifestation of neurodevelopmental disorders (NDDs), including autism spectrum disorder (ASD), intellectual disability (ID), developmental delay (DD), seizures (SZs), and attention deficit order (ADHD). The copy number deletions involving this gene were mostly inherited from an unaffected parent. Familial segregations of the CNTN6 deletions and intragenic duplications were also reported. However, parental studies were not available for the majority of cases.\r\nThere are more than 40 CNTN6 entire gene or intragenic deletions in the DECIPHER database. These CNVs have also been reported in some phenotypically normal individuals in the databases of genomic variants. \r\n\r\nTherefore, it remains unclear whether the expression of CNTN6 gene has been altered in reported individuals as there is a lack of published functional studies of these CNVs.\r\n"}
+  {:iri "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-H",
+   :evidence
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-H-EL-H1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/15106122",
+     :description
+     "Fernandez et al (2004) reported a de novo balanced translocation involving chromosomes 3 and 10 with breakpoint in chromosome 3p that disrupts the 5' UTR of contactin 4 (CNTN4) in a patient with developmental delay and characteristic physical features of the distal 3p deletion syndrome [MIM: 613792]. The authors suggested that disruption of a single copy of CNTN4 is sufficient to confer clinical features of the 3p deletion syndrome phenotype, including developmental delay.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-H-EL-H2",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/18349135",
+     :description
+     "Roohi et al (2009) identified CNTN4 disruptions via an intragenic deletion (~654 kb, involving exons 2-6 of 25) in two siblings and an intragenic duplication (~791 kb, involving exons 1-5 of 25) in another unrelated individual with autism spectrum disorder (ASD) using whole genome array comparative genomic hybridization (aCGH). However, none of these individuals with intragenic copy number variations (CNVs) of CNTN4 demonstrated the classical distal 3p deletion syndrome phenotype. Of note, in this study, CNVs disrupting CNTN4 were all inherited from fathers without a history of ASD. In addition, a third affected sibling with ASD in the family with intragenic deletion did not carry the deletion.\r\n\r\nFurther molecular characterization of the CNVs revealed that they resulted from Alu Y mediated unequal recombination.\r\n\r\nThe authors stated that there have been a few rare reports of CNVs affecting CNTN4 in normal individuals as well (Database of Genomic Variants, http://projects.tcag.ca/variation/). Therefore, they offered incomplete penetrance of disruption of the gene. \r\n",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-4891-H-EL-H3",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/21308999",
+     :description
+     "Cottrell et al (2011) reported a deletion at 3p26.3 encompassing the 5′ end of CNTN4 (~535 kb) in an individual with autism using array comparative genome hybridization (aCGH). This deletion was inherited from a phenotypically normal mother. \r\n\r\nFurther, they sequenced CNTN4 in a cohort of 75 individuals with autism spectrum disorder (ASD) and 107 controls. Unique and evolutionary conserved nonsynonymous missense variants were identified in 4/75 unrelated individuals with an ASD, as well as in 1/107 controls. However, these data did not reach statistical significance, nor did the variants segregate with disease within all of the ASD families. The authors did not detect any difference in binding efficiencies of the murine CNTN4Ig1-4 fragments containing conserved variants found in two ASD families at amino acid positions 178 or 221.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-18T00:38:01.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/152330",
+   :phenotype nil,
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000095",
+   :description
+   "Currently, CNTN4 is not associated with an OMIM phenotype. The literature suggests that disruptions of a single copy of CNTN4 may play a role in a pathogenic mechanism for this gene. Disruptions of CNTN4 via chromosomal rearrangements, copy number variations, and missense mutations have been reported in individuals with various neurodevelopmental disorders, including autism spectrum disorder. However, given copy number deletion of this gene has been observed in the general population as noted in the Database of Genomic Variants (DGV) and due to parental inheritance and a weak evidence of family segregation with clinical phenotype, the clinical significance of CNTN4 haploinsufficiency remains uncertain. \r\n\r\nAdditionally, in a study comparing a large cohort of children with ID and/or DD to unaffected adult controls, the incidence of observed deletions of CNTN4 was 15/15,767 in cases vs. 4/8,329 controls, which failed to reach statistical significance with a p value of 0.159 (PMID:21841781)\r\n\r\n"}
+  {:iri "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-H",
+   :evidence
+   ({:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-H-EL-H1",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/22426308",
+     :description
+     "Using exome sequencing Tsurusaki et al (2012) identified 3 mutations in ARID1A in a study designed to target genes encoding sub-units of the SWItch/Sucrose NonFermenting (SWI/SNF) complex in patients with Coffin-Siris Syndrome (CSS). These included one frameshift and 2 premature termination mutations. 1 of the nonsense variants was de novo (subject 8); parental samples for the remaining 2 variants were unavailable. cDNA analysis of lymphoblastoid cell lines from subject 6 (the nonsense variant without available parental samples) showed that the mutant transcript was subject to nonsense-mediated decay. The authors proposed that haploinsufficiency of ARID1A must be able to cause CSS as the mutations were predicted to cause protein truncation.  Additional clinical information for these three individuals is available in PMID: 23637025.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-H-EL-H2",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/23929686",
+     :description
+     "Santen et al. 2013 evaluated 63 patients with clinical diagnoses of Coffin-Siris syndrome via Sanger sequencing for variants in six genes previously associated with Coffin-Siris syndrome, including ARID1A.  They identified 4 variants in ARID1A: two nonsense and two frameshift.  One of the nonsense and one of the frameshift variants were de novo; the mother was unavailable for the second nonsense variant (not detected in father), and neither parent was available for the second frameshift.  Of note, all 4 of these variants appeared to be mosaic in lymphocytes.  These authors also suggested that the sequencing reads from the variant alleles published in the Tsurusaki paper of two variants appeared to have lower peaks than the reference allele; they hypothesized that these variants might be mosaic as well.",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}
+    {:id
+     "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-H-EL-H3",
+     :information "https://www.ncbi.nlm.nih.gov/pubmed/23906836",
+     :description
+     "Wieczorek et al. 2013 describe a de novo nonsense variant in an individual with a clinical diagnosis of Coffin-Siris syndrome (Individual K2435) identified by whole exome sequencing.  The authors note that this allele was \"detected in a lower proportion than the wild-type allele, indicating the presence of somatic mosaicism in the individual.\"",
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000111"}),
+   :type "http://datamodel.clinicalgenome.org/terms/CG_000083",
+   :modified "2017-10-12T17:36:22.000-0400",
+   :status "http://datamodel.clinicalgenome.org/terms/CG_000114",
+   :gene "https://www.ncbi.nlm.nih.gov/gene/8289",
+   :phenotype "http://purl.obolibrary.org/obo/OMIM_614607",
+   :interpretation
+   "http://datamodel.clinicalgenome.org/terms/CG_000092",
+   :description
+   "Coffin-Siris syndrome is a rare congenital anomaly syndrome characterized by growth deficiency, intellectual disability, microcephaly, coarse facial features and hypoplastic nail of the fifth finger and/or toe.  Variants reported in the literature to date have been nonsense or frameshift, though many have been observed in the context of somatic mosaicism.  One hypothesis put forth by Santen et al. is that heterozygous truncating germline variants in ARID1A may be embryonically lethal; these authors cite the work of Gao et al. (2008) showing this to be the case in mice."})))
