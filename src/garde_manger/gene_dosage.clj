@@ -16,7 +16,6 @@
 (def dosage-root "https://search.clinicalgenome.org/kb/gene-dosage/")
 (def region-root "https://search.clinicalgenome.org/kb/regions/")
 (def start-date "2011-01-01")
-;;(def start-date "2017-10-04")
 (def batch-size 50)
 (def last-polled-file "state/last-polled")
 (def date-time-format (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm"))
@@ -25,25 +24,27 @@
 ;; as evidence to justify the interpretation
 ;; These are listed as pairs, the first is a PMID reference, the second is
 ;; a textual description
-(def loss-evidence-fields
-  [["customfield_10183" "customfield_10184" "-EL-H1"]
-   ["customfield_10185" "customfield_10186" "-EL-H2"]
-   ["customfield_10187" "customfield_10188" "-EL-H3"]])
 
-(def gain-evidence-fields
-  [["customfield_10189" "customfield_10190" "-EL-T1"]
-   ["customfield_10191" "customfield_10192" "-EL-T2"]
-   ["customfield_10193" "customfield_10194" "-EL-T3"]])
+(def evidence-field-map
+  {:loss [["customfield_10183" "customfield_10184" "-EL-H1"]
+          ["customfield_10185" "customfield_10186" "-EL-H2"]
+          ["customfield_10187" "customfield_10188" "-EL-H3"]]
+   :gain [["customfield_10189" "customfield_10190" "-EL-T1"]
+          ["customfield_10191" "customfield_10192" "-EL-T2"]
+          ["customfield_10193" "customfield_10194" "-EL-T3"]]})
 
+(def assertion-suffix
+  {:loss "-H"
+   :gain "-T"})
 
 ;; Mappings for custom fields; specific to loss or gain, gene or region
-(def loss-fields {"customfield_10200" :phenotype
-                  "customfield_10165" :interpretation
-                  "customfield_10198" :description})
-
-(def gain-fields {"customfield_10166" :interpretation
-                  "customfield_10201" :phenotype
-                  "customfield_10199" :description})
+(def assertion-fields
+  {:loss {"customfield_10200" :phenotype
+          "customfield_10165" :interpretation
+          "customfield_10198" :description}
+   :gain {"customfield_10166" :interpretation
+          "customfield_10201" :phenotype
+          "customfield_10199" :description}})
 
 (def gene-fields {"customfield_10157" :gene})
 
@@ -51,22 +52,18 @@
                          "updated" :modified
                          "status" :status})
 
-;; Translation of raw scores into IRI-based types
-;; note difference between interpretations for loss vs gain
-(def loss-interp 
-  {"3" "http://datamodel.clinicalgenome.org/terms/CG_000092"
-   "2" "http://datamodel.clinicalgenome.org/terms/CG_000093"
-   "1" "http://datamodel.clinicalgenome.org/terms/CG_000095"
-   "0" "http://datamodel.clinicalgenome.org/terms/CG_000096"
-   "30: Gene associated with autosomal recessive phenotype" "http://datamodel.clinicalgenome.org/terms/CG_000094"
-   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000120"})
-
-(def gain-interp
-  {"3" "http://datamodel.clinicalgenome.org/terms/CG_000097"
-   "2" "http://datamodel.clinicalgenome.org/terms/CG_000098"
-   "1" "http://datamodel.clinicalgenome.org/terms/CG_000099"
-   "0" "http://datamodel.clinicalgenome.org/terms/CG_000100"
-   "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000121"})
+(def interp-codes
+  {:loss {"3" "http://datamodel.clinicalgenome.org/terms/CG_000092"
+          "2" "http://datamodel.clinicalgenome.org/terms/CG_000093"
+          "1" "http://datamodel.clinicalgenome.org/terms/CG_000095"
+          "0" "http://datamodel.clinicalgenome.org/terms/CG_000096"
+          "30: Gene associated with autosomal recessive phenotype" "http://datamodel.clinicalgenome.org/terms/CG_000094"
+          "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000120"}
+   :gain {"3" "http://datamodel.clinicalgenome.org/terms/CG_000097"
+          "2" "http://datamodel.clinicalgenome.org/terms/CG_000098"
+          "1" "http://datamodel.clinicalgenome.org/terms/CG_000099"
+          "0" "http://datamodel.clinicalgenome.org/terms/CG_000100"
+          "40: Dosage sensitivity unlikely" "http://datamodel.clinicalgenome.org/terms/CG_000121"}})
 
 (def status-codes
   {"Closed" "http://datamodel.clinicalgenome.org/terms/CG_000114"
@@ -76,8 +73,8 @@
    "Under Primary Review" "http://datamodel.clinicalgenome.org/terms/CG_000115"
    "Under Secondary Review" "http://datamodel.clinicalgenome.org/terms/CG_000116"})
 
-(def loss-evidence "http://datamodel.clinicalgenome.org/terms/CG_000111")
-(def gain-evidence "http://datamodel.clinicalgenome.org/terms/CG_000112")
+(def evidence-type {:loss "http://datamodel.clinicalgenome.org/terms/CG_000111"
+                    :gain "http://datamodel.clinicalgenome.org/terms/CG_000112"})
 
 ;; Fields where we want to extract a more deeply nested value to represent
 ;; in the JSON, or otherwise apply some appropriate transformation
@@ -87,8 +84,6 @@
                   [:phenotype #(if (empty? %)
                                  nil
                                  (str "http://purl.obolibrary.org/obo/OMIM_" %))]])
-
-
 
 (defn send-message
   "Send an updated dosage curation into Kafka"
@@ -109,54 +104,51 @@
      :description desc
      :type type}))
 
-(defn extract-assertion
-  [fields evidence-keys assertion-evidence-type]
-  )
+(defn extract-region-context
+  "From the issue, extract the region context"
+  [issue]
+  (let [coords (get-in issue ["fields" "customfield_10160"])
+        [_ chr start stop] (re-matches #"chr([XY0-9]*):([0-9]*)-([0-9]*)" coords)
+        region-iri (str region-root (issue "key") "-R")]
+    {:iri (str region-root (issue "key") "-CX")
+     :start start
+     :stop stop
+     :chromosome chr
+     :assembly "GRCh37"
+     :type "http://datamodel.clinicalgenome.org/terms/CG_000117"}))
 
-(defn transform-gene-haploinsufficiency
-  "Transform an assertion generated by JIRA into a standard format"
-  [item]
-  (let [id (str dosage-root (item "key") "-H")
+(defn extract-region
+  "From the issue, extract the region description (name and root iri)"
+  [issue]
+  (let [fields (issue "fields")]
+    {:label (fields "customfield_10202")
+     :iri (str region-root (issue "key") "-R")
+     :type "http://purl.obolibrary.org/obo/SO_0000001"
+     :context (extract-region-context issue)}))
+
+(defn extract-assertion
+  "Extract the assertion entity from an issue given the appropriate type (:loss or :gain)"
+  [item assertion-type region-type]
+  (let [id (str dosage-root (item "key") (assertion-type assertion-suffix))
         fields (item "fields")
-        evidence (extract-evidence-line fields loss-evidence-fields loss-evidence id)
-        key-set (merge frontmatter-fields gene-fields loss-fields)
+        evidence (extract-evidence-line fields (evidence-field-map assertion-type)
+                                        (evidence-type assertion-type) id)
+        key-set (merge frontmatter-fields (assertion-fields assertion-type)
+                       (if (= :gene region-type) gene-fields {}))
         mapped-fields (-> fields (rename-keys key-set) (select-keys (vals key-set)))
         ;; apply transformations specified in valued-keys
         mapped-valued-fields (reduce #(update %1 (%2 0) (%2 1)) mapped-fields valued-keys)
         interpreted-fields (->  mapped-valued-fields 
-                                (update :interpretation loss-interp)
-                                (update :status status-codes))]
+                                (update :interpretation (interp-codes assertion-type))
+                                (update :status status-codes))
+        region (if (= :region region-type)
+                 {:region (extract-region item)}
+                 {})]
     (merge {:iri id}
            {:evidence  evidence}
            {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
-           interpreted-fields)))
-
-(defn transform-gene-triplosensitivity
-  "Transform the triplosensitivity side of interpretations into a standard format"
-  [item]
-  ;; (println (vector? item))
-  (let [id (str dosage-root (item "key") "-T")
-        fields (item "fields")
-        evidence (extract-evidence-line fields gain-evidence-fields gain-evidence id)
-        key-set (merge frontmatter-fields gene-fields gain-fields)
-        mapped-fields (-> fields (rename-keys key-set) (select-keys (vals key-set)))
-        ;; apply transformations specified in valued-keys
-        mapped-valued-fields (reduce #(update %1 (%2 0) (%2 1)) mapped-fields valued-keys)
-        interpreted-fields (->  mapped-valued-fields 
-                                (update :interpretation gain-interp)
-                                (update :status status-codes))]
-    (merge {:iri id}
-           {:evidence_line  evidence}
-           {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
-           interpreted-fields)))
-
-
-                                        ;0,1,2,3, \"30: Gene associated with autosomal recessive phenotype\", \"40: Dosage sensitivity unlikely\"
-
-;; "startAt" 0,
-;; "maxResults" 1,
-;; "total" 45596,
-
+           interpreted-fields
+           region)))
 
 (defn jira-issues
   "Return a lazy seq of blocks of raw issues, retrieved from JIRA"
@@ -179,48 +171,11 @@
              (jira-issues curation-type start-time (+ start max-results) max-results)))
       (list (result-body "issues")))))
 
-
-;; cf[10202] -- region name
-;; cf[10160] -- GRCh37 Genome Position
-
-(defn extract-region
-  "From the issue, extract the region description (name and root iri)"
-  [issue]
-  (let [fields (issue "fields")]
-    {:label (fields "customfield_10202")
-     :iri (str region-root (issue "key") "-R")
-     :type "http://purl.obolibrary.org/obo/SO_0000001"}))
-
-(defn extract-region-context
-  "From the issue, extract the region context"
-  [issue]
-  (let [coords (get-in issue ["fields" "customfield_10160"])
-        [_ chr start stop] (re-matches #"chr([XY0-9]*):([0-9]*)-([0-9]*)" coords)
-        region-iri (str region-root (issue "key") "-R")]
-    {:iri (str region-root (issue "key") "-CX")
-     :start start
-     :stop stop
-     :chromosome chr
-     :region region-iri
-     :assembly "GRCh37"
-     :type "http://datamodel.clinicalgenome.org/terms/CG_000117"}))
-
-(defn transform-region-haploinsufficiency
-  [issue]
-  (vector (extract-region issue)
-          (extract-region-context issue)))
-
-(defn transform-region-issues
-  "Transform region curation issues from JIRA"
-  [issues]
-  (map transform-region-haploinsufficiency issues))
-
-
-(defn transform-issues
+(defn transform-gene-issues
   "Transform issues from JIRA into data model-ish format"
   [issues]
-  (into (map transform-gene-haploinsufficiency issues)
-        (map transform-gene-triplosensitivity issues)))
+  (into (map #(extract-assertion % :loss :gene) issues)
+        (map #(extract-assertion % :gain :gene) issues)))
 
 (defn push-message
   "Push incoming messages to Kafka-based data exchange"
