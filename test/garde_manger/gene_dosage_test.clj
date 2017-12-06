@@ -10,7 +10,7 @@
 
 (deftest can-transform-gene-assertions
 
-  (let [i (map transform-issues sample-jira-issues)
+  (let [i (map transform-gene-issues sample-jira-issues)
         i1 (->> i first
                 (filter
                  #(= "https://search.clinicalgenome.org/kb/gene-dosage/ISCA-6584-H"

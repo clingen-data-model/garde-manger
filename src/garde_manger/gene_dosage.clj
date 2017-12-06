@@ -19,6 +19,7 @@
 (def batch-size 50)
 (def last-polled-file "state/last-polled")
 (def date-time-format (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm"))
+(def file-target "/tmp/garde/")
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -110,7 +111,7 @@
   (let [coords (get-in issue ["fields" "customfield_10160"])
         [_ chr start stop] (re-matches #"chr([XY0-9]*):([0-9]*)-([0-9]*)" coords)
         region-iri (str region-root (issue "key") "-R")]
-    {:iri (str region-root (issue "key") "-CX")
+    {:id (str region-root (issue "key") "-CX")
      :start start
      :stop stop
      :chromosome chr
@@ -122,7 +123,7 @@
   [issue]
   (let [fields (issue "fields")]
     {:label (fields "customfield_10202")
-     :iri (str region-root (issue "key") "-R")
+     :id (str region-root (issue "key") "-R")
      :type "http://purl.obolibrary.org/obo/SO_0000001"
      :context (extract-region-context issue)}))
 
@@ -144,7 +145,7 @@
         region (if (= :region region-type)
                  {:region (extract-region item)}
                  {})]
-    (merge {:iri id}
+    (merge {:id id}
            {:evidence  evidence}
            {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
            interpreted-fields
@@ -171,6 +172,12 @@
              (jira-issues curation-type start-time (+ start max-results) max-results)))
       (list (result-body "issues")))))
 
+(defn transform-region-issues
+  "Transform issues from JIRA into data model format"
+  [issues]
+  (into (map #(extract-assertion % :loss :region) issues)
+        (map #(extract-assertion % :gain :region) issues)))
+
 (defn transform-gene-issues
   "Transform issues from JIRA into data model-ish format"
   [issues]
@@ -183,40 +190,52 @@
   (let [msg-str (json/generate-string message)]
     (println "in push-messages")
     (pprint message)
-    (.send producer (ProducerRecord. kafka-topic (:iri message) msg-str))))
+    (.send producer (ProducerRecord. kafka-topic (:id message) msg-str))))
 
-(defn write-messages
+(defn write-message
   "Write incoming messages to file"
-  [messages out-file]
-  (with-open [w (clojure.java.io/writer out-file)]
-    (json/generate-stream messages w {:pretty true})))
+  [message]
+  (let [key (re-find #"ISCA.*$" (:id message))
+        path (str file-target key)]
+    (io/make-parents path)
+    (with-open [w (io/writer path)]
+      (json/generate-stream message w {:pretty true}))))
+
+
+;; Expects ISCA Gene Curation or ISCA Region Curation for curation types
+(defn write-update-to-files
+  [datetime curation-type] 
+  (doseq [batch (jira-issues curation-type datetime 0 batch-size)
+          message (transform-gene-issues batch)]
+    (write-message message)))
 
 (defn send-update-to-exchange
   "Update data exchange with issues modified after given time"
   [datetime producer] 
   (doseq [batch (jira-issues "ISCA Gene Curation" datetime 0 batch-size)
-          message (transform-issues batch)]
+          message (transform-gene-issues batch)]
     (log/info "sending messages: " (with-out-str (pprint message)))
     (push-message message producer)))
 
 (defn exchange-update-loop
   "Loop to update data exchange with messages updated after current date and time"
   []
-  (with-open [p (kafka/producer)]
-    (while true
-      (let [last-polled (if (.exists (io/as-file last-polled-file))
-                          (slurp last-polled-file)
-                          start-date)
-            ;; TODO make sure this is in alignment with timezones used in JIRA
-            ;; ideally automatically
-            current-time (-> (LocalDateTime/now) (.format date-time-format))]
-        ;; Update last polled
-        (spit last-polled-file current-time)
-        (println "Querying JIRA from " last-polled)
-        (log/info "Querying JIRA from " last-polled)
-        ;; TODO Consider using current time as end-time for search to avoid
-        ;; double-pushing entities updated between polling and now
-        (send-update-to-exchange last-polled p)
-        ;; Sleep for five minutes
-        (Thread/sleep (* 1000 60 5))))))
+  (while true
+    (try
+      (with-open [p (kafka/producer)]
+        (let [last-polled (if (.exists (io/as-file last-polled-file))
+                            (slurp last-polled-file)
+                            start-date)
+              ;; TODO make sure this is in alignment with timezones used in JIRA
+              ;; ideally automatically
+              current-time (-> (LocalDateTime/now) (.format date-time-format))]
+          ;; Update last polled
+          (spit last-polled-file current-time)
+          (println "Querying JIRA from " last-polled)
+          (log/info "Querying JIRA from " last-polled)
+          ;; TODO Consider using current time as end-time for search to avoid
+          ;; double-pushing entities updated between polling and now
+          (send-update-to-exchange last-polled p)))
+      (catch Exception e (log/error e)))
+    (Thread/sleep (* 1000 60 5))))
 
