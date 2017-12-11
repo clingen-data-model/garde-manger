@@ -230,12 +230,12 @@
               ;; ideally automatically
               current-time (-> (LocalDateTime/now) (.format date-time-format))]
           ;; Update last polled
-          (spit last-polled-file current-time)
           (println "Querying JIRA from " last-polled)
           (log/info "Querying JIRA from " last-polled)
           ;; TODO Consider using current time as end-time for search to avoid
           ;; double-pushing entities updated between polling and now
-          (send-update-to-exchange last-polled p)))
+          (send-update-to-exchange last-polled p)
+          (spit last-polled-file current-time)))
       (catch Exception e (log/error e)))
     (Thread/sleep (* 1000 60 5))))
 
