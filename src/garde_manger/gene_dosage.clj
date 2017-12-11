@@ -80,8 +80,8 @@
 ;; Fields where we want to extract a more deeply nested value to represent
 ;; in the JSON, or otherwise apply some appropriate transformation
 ;; a map of functions to apply to the value of certain keys after retrieval
-(def valued-keys [[:interpretation #(% "value")]
-                  [:status #(% "name")]
+(def valued-keys [[:interpretation #(get % "value")]
+                  [:status #(get % "name")]
                   [:phenotype #(if (empty? %)
                                  nil
                                  (str "http://purl.obolibrary.org/obo/OMIM_" %))]])
@@ -138,7 +138,7 @@
                        (if (= :gene region-type) gene-fields {}))
         mapped-fields (-> fields (rename-keys key-set) (select-keys (vals key-set)))
         ;; apply transformations specified in valued-keys
-        mapped-valued-fields (reduce #(update %1 (%2 0) (%2 1)) mapped-fields valued-keys)
+        mapped-valued-fields (do (pprint id) (reduce #(update %1 (%2 0) (%2 1)) mapped-fields valued-keys))
         interpreted-fields (->  mapped-valued-fields 
                                 (update :interpretation (interp-codes assertion-type))
                                 (update :status status-codes))
