@@ -11,6 +11,7 @@
                  [cheshire "5.7.0"]
                  [org.clojure/tools.logging "0.4.0"]
                  [org.slf4j/slf4j-log4j12 "1.7.25"]
+                 [org.clojure/tools.cli "0.3.5"]
                  ;; [org.apache.logging.log4j/log4j "2.9.1"
                  ;;  :exclusions [javax.mail/mail
                  ;;               javax.jms/jms

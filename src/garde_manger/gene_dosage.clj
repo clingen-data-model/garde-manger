@@ -19,12 +19,16 @@
 (def batch-size 50)
 (def last-polled-file "state/last-polled")
 (def date-time-format (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm"))
-(def file-target "/tmp/garde/")
+(def file-target "../serveur/data/import/")
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
 ;; These are listed as pairs, the first is a PMID reference, the second is
 ;; a textual description
+
+(def assertion-type-map
+  {:gene "http://datamodel.clinicalgenome.org/terms/CG_000083"
+   :region "http://datamodel.clinicalgenome.org/terms/CG_000116"})
 
 (def evidence-field-map
   {:loss [["customfield_10183" "customfield_10184" "-EL-H1"]
@@ -147,7 +151,7 @@
                  {})]
     (merge {:id id}
            {:evidence  evidence}
-           {:type "http://datamodel.clinicalgenome.org/terms/CG_000083"}
+           {:type (assertion-type-map region-type)}
            interpreted-fields
            region)))
 
@@ -202,12 +206,23 @@
       (json/generate-stream message w {:pretty true}))))
 
 
+(def type-description
+  {:gene "ISCA Gene Curation"
+   :region "ISCA Region Curation"})
+
 ;; Expects ISCA Gene Curation or ISCA Region Curation for curation types
-(defn write-update-to-files
+(defn write-file-update-for-type
   [datetime curation-type] 
-  (doseq [batch (jira-issues curation-type datetime 0 batch-size)
-          message (transform-gene-issues batch)]
+  (doseq [batch (jira-issues (type-description curation-type) datetime 0 batch-size)
+          message (if (= :gene curation-type) (transform-gene-issues batch)
+                      (transform-region-issues batch))]
     (write-message message)))
+
+(defn write-file-updates
+  "Write all update files since beginning of time (or whenever dosage started...)"
+  []
+  (write-file-update-for-type start-date :gene)
+  (write-file-update-for-type start-date :region))
 
 (defn send-update-to-exchange
   "Update data exchange with issues modified after given time"
