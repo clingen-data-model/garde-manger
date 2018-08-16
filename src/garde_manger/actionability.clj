@@ -10,7 +10,7 @@
                "type"  "actionability",
                "affiliation" {"id"  "AWG",
                               "name"  "Actionability Working Group"},
-               "iri"  "http://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/",
+               "iri"  "https://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/",
                "curationVersion"  "1.2.0",
                "statusFlag"  "Released - Under Revision",
                "scoreDetails"  "http://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc="})
@@ -54,24 +54,32 @@
     {"jsonMessageVersion"  "AV1",
      "statusPublishFlag"  "Publish",
      "type"  "actionability",
+     "dateISO8601" (get-in record ["properties" "Release" "properties" "Date" "value"])
      "affiliation" {"id"  "AWG",
                     "name"  "Actionability Working Group"},
      "iri"   (str "http://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/" id),
      "curationVersion"  "1.2.0",
-     "statusFlag"  "Released - Under Revision",
+     "statusFlag"  "Released",
      "scoreDetails" (str "http://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc=" id)
+     "genes" (gene-list record)
+     "conditions" (disease-list record)
      "scores" (outcome-list record)}))
 
-(defn import-actionability
+(defn parse-actionability
+  "Parse stream of actionability records"
+  [s]
+  (let [act-json (json/parse-stream s)]
+       (filter #(= "Released" (get-in % ["properties" "Status" "value"]))
+               (map #(get % "ActionabilityDocID") (-> act-json first second)))))
+
+(defn write-actionability
   "Import actionability records from actionability API (not data exchange message"
   []
-  (let [act-json (json/parse-stream (io/reader act-path))
-        records (filter #(= "Released" (get-in % ["properties" "Status" "value"]))
-                        (map #(get % "ActionabilityDocID") (-> act-json first second)))]
+  (let [records (parse-actionability (io/reader act-path))]
     (doseq [r records]
-      (pprint (get-in r ["properties" "Status" "value"]))
-      ;;(println "--- RAW RECORD ---")
-      ;;(pprint r)
-      ;;(println "--- TRANSFORM RECORD ---")
-      ;;(pprint (transform-record r))
-      )))
+      (let [id (get r "value")]
+        ;;(pprint (get-in r ["properties" "Release" "properties" "Date" "value"]))
+        (with-open [w (io/writer (str "output/" id ".json"))]
+          (json/generate-stream (transform-record r) w {:pretty true}))))))
+
+
