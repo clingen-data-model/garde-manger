@@ -13,7 +13,7 @@
                "iri"  "https://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/",
                "curationVersion"  "1.2.0",
                "statusFlag"  "Released - Under Revision",
-               "scoreDetails"  "http://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc="})
+               "scoreDetails"  "https://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc="})
 
 (defn gene-list
   [record]
@@ -57,10 +57,10 @@
      "dateISO8601" (get-in record ["properties" "Release" "properties" "Date" "value"])
      "affiliation" {"id"  "AWG",
                     "name"  "Actionability Working Group"},
-     "iri"   (str "http://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/" id),
+     "iri"   (str "https://actionability.clinicalgenome.org/REST/v1/grp/actionability/kb/actionability_release/coll/combined_model/doc/" id),
      "curationVersion"  "1.2.0",
      "statusFlag"  "Released",
-     "scoreDetails" (str "http://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc=" id)
+     "scoreDetails" (str "https://actionability.clinicalgenome.org/redmine/projects/actionability_release/genboree_ac/ui/stg2SummaryRpt?doc=" id)
      "genes" (gene-list record)
      "conditions" (disease-list record)
      "scores" (outcome-list record)}))

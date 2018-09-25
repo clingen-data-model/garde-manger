@@ -232,6 +232,17 @@
     (log/info "sending messages: " (with-out-str (pprint message)))
     (push-message message producer)))
 
+(defn write-jira-output
+  "Write records from JIRA to data/jira-output"
+  []
+  (println "Writing data to data/jira-output")
+  (let [issue-batches (jira-issues "ISCA Gene Curation" "2010-01-01" 0 100)]
+    (doseq [batch issue-batches
+            issue batch]
+      (with-open [w (io/writer (str "data/jira-output/" (get issue "key") ".json"))]
+        (json/generate-stream issue w {:pretty true}))))
+  (println "Completed writing jira output"))
+
 (defn exchange-update-loop
   "Loop to update data exchange with messages updated after current date and time"
   []

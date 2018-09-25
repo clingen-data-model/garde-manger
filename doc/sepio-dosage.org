@@ -1,0 +1,47 @@
+* Entities
+All entities have ID properties and type properties except where noted. Beyond this, additional properties and relationships are noted below.
+** Assertion
+*** Relationships
+**** has_subject
+**** has_object 
+**** has_predicate
+**** hasEvidenceWithItem
+*** Literals
+**** description
+**** date_updated
+** Proposition
+*** Relationships
+**** has_subject
+**** has_object 
+**** has_predicate
+*** Literals
+**** description
+** Study Finding
+*** Relationships
+**** has_evidence_item
+**** describes_study_data
+** Dosage Variant
+Using 'state' concept from VMC.
+Is it OK to use a reference to the gene for 'sequence' without further definition?
+*** Relationships
+**** sequence
+*** Literals
+**** count
+** Region
+*** relationships
+**** sequence_id
+Need to find an appropriate ontological term--this is the reference sequence for the specific build
+**** interval
+Blank node with start and end properties
+** Interval
+Blank node (no id)
+*** Literals
+**** start
+**** end
+* Coded values
+** Evidence
+*** No Evidence
+*** Minimal Evidence
+*** Some Evidence
+*** Sufficient Evidence
+    
