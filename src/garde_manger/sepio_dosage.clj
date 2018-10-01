@@ -49,7 +49,7 @@
     {:sequence (:customfield-10157 fields)
      :count dosage}))
 
-
+;; TODO get descriptor (condition)
 (defn construct-proposition
   "Return proposition object from interpretation"
   [interp dosage]
@@ -64,6 +64,8 @@
   {:activity-date (get-in interp [:fields :resolutiondate])
    :realizes "SEPIO:0000331"})
 
+;; TODO create evidence value set entities
+;; TODO get description
 (defn construct-assertion
   [interp dosage]
   (let [date-part (re-find #"^[^\.]*" (get-in interp [:fields :resolutiondate]))
