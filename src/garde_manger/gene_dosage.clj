@@ -1,25 +1,9 @@
 (ns garde-manger.gene-dosage
-  (:require [clj-http.client :as http]
-            [cheshire.core :as json]
-            [clojure.set :refer [rename-keys]]
-            [garde-manger.kafka :as kafka]
-            [clojure.java.io :as io]
-            [clojure.tools.logging :as log]
-            [clojure.pprint :as pprint :refer [pprint]])
-  (:import java.util.Properties
-           java.time.LocalDateTime
-           java.time.format.DateTimeFormatter
-           [org.apache.kafka.clients.producer KafkaProducer Producer ProducerRecord]))
+  (:require [clojure.set :refer [rename-keys]]
+            [clojure.pprint :as pprint :refer [pprint]]))
 
-;; Topic to use for gene_dosage 
-(def kafka-topic "gene_dosage")
 (def dosage-root "https://search.clinicalgenome.org/kb/gene-dosage/")
 (def region-root "https://search.clinicalgenome.org/kb/regions/")
-(def start-date "2011-01-01")
-(def batch-size 50)
-(def last-polled-file "state/last-polled")
-(def date-time-format (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm"))
-(def file-target "../serveur/data/import/")
 
 ;; JIRA maintains custom fields for the PMID links and descriptions that are used
 ;; as evidence to justify the interpretation
@@ -90,11 +74,6 @@
                                  nil
                                  (str "http://purl.obolibrary.org/obo/OMIM_" %))]])
 
-(defn send-message
-  "Send an updated dosage curation into Kafka"
-  [p k v]
-  (.send p (ProducerRecord. kafka-topic k v)))
-
 (defn extract-evidence-line
   "Given keyset, identifying the evidence and description fields for the assertion,
   extract the evidence line and the description"
@@ -155,27 +134,6 @@
            interpreted-fields
            region)))
 
-(defn jira-issues
-  "Return a lazy seq of blocks of raw issues, retrieved from JIRA"
-  [curation-type start-time start max-results]
-  (let [query-str (str "project = ISCA AND type = \"" curation-type "\" AND status != Open AND resolution = Complete AND updated > '" start-time "' ORDER BY updated DESC")
-        url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
-        result (http/get url {:query-params 
-                              {:jql query-str
-                               :startAt start
-                               :maxResults max-results}
-                              :content-type "application/json"
-                              :basic-auth [(System/getenv "NCBI_JIRA_USER")
-                                           (System/getenv "NCBI_JIRA_PASSWORD")]})
-        result-body (-> result :body json/parse-string)
-        remaining (- (result-body "total") (+ start max-results))]
-    (log/info "Retrieving messages from " start ", " (result-body "total") " total.")
-    (if (> remaining 0)
-      (lazy-seq
-       (cons (result-body "issues")
-             (jira-issues curation-type start-time (+ start max-results) max-results)))
-      (list (result-body "issues")))))
-
 (defn transform-region-issues
   "Transform issues from JIRA into data model format"
   [issues]
@@ -188,80 +146,7 @@
   (into (map #(extract-assertion % :loss :gene) issues)
         (map #(extract-assertion % :gain :gene) issues)))
 
-(defn push-message
-  "Push incoming messages to Kafka-based data exchange"
-  [message producer]
-  (let [msg-str (json/generate-string message)]
-    (println "in push-messages")
-    (pprint message)
-    (.send producer (ProducerRecord. kafka-topic (:id message) msg-str))))
-
-(defn write-message
-  "Write incoming messages to file"
-  [message]
-  (let [key (re-find #"ISCA.*$" (:id message))
-        path (str file-target key)]
-    (io/make-parents path)
-    (with-open [w (io/writer path)]
-      (json/generate-stream message w {:pretty true}))))
 
 
-(def type-description
-  {:gene "ISCA Gene Curation"
-   :region "ISCA Region Curation"})
 
-;; Expects ISCA Gene Curation or ISCA Region Curation for curation types
-(defn write-file-update-for-type
-  [datetime curation-type] 
-  (doseq [batch (jira-issues (type-description curation-type) datetime 0 batch-size)
-          message (if (= :gene curation-type) (transform-gene-issues batch)
-                      (transform-region-issues batch))]
-    (write-message message)))
-
-(defn write-file-updates
-  "Write all update files since beginning of time (or whenever dosage started...)"
-  []
-  (write-file-update-for-type start-date :gene)
-  (write-file-update-for-type start-date :region))
-
-(defn send-update-to-exchange
-  "Update data exchange with issues modified after given time"
-  [datetime producer] 
-  (doseq [batch (jira-issues "ISCA Gene Curation" datetime 0 batch-size)
-          message (transform-gene-issues batch)]
-    (log/info "sending messages: " (with-out-str (pprint message)))
-    (push-message message producer)))
-
-(defn write-jira-output
-  "Write records from JIRA to data/jira-output"
-  []
-  (println "Writing data to data/jira-output")
-  (let [issue-batches (jira-issues "ISCA Gene Curation" "2010-01-01" 0 100)]
-    (doseq [batch issue-batches
-            issue batch]
-      (with-open [w (io/writer (str "data/jira-output/" (get issue "key") ".json"))]
-        (json/generate-stream issue w {:pretty true}))))
-  (println "Completed writing jira output"))
-
-(defn exchange-update-loop
-  "Loop to update data exchange with messages updated after current date and time"
-  []
-  (while true
-    (try
-      (with-open [p (kafka/producer)]
-        (let [last-polled (if (.exists (io/as-file last-polled-file))
-                            (slurp last-polled-file)
-                            start-date)
-              ;; TODO make sure this is in alignment with timezones used in JIRA
-              ;; ideally automatically
-              current-time (-> (LocalDateTime/now) (.format date-time-format))]
-          ;; Update last polled
-          (println "Querying JIRA from " last-polled)
-          (log/info "Querying JIRA from " last-polled)
-          ;; TODO Consider using current time as end-time for search to avoid
-          ;; double-pushing entities updated between polling and now
-          (send-update-to-exchange last-polled p)
-          (spit last-polled-file current-time)))
-      (catch Exception e (log/error e)))
-    (Thread/sleep (* 1000 60 5))))
 
