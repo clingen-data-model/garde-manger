@@ -12,22 +12,23 @@
 
 (defn issues-from [curation-type start-time start]
   (let [query-str (str "project = ISCA AND type = \"" curation-type "\" AND status != Open AND resolution = Complete AND updated > '" start-time "' ORDER BY updated DESC")
-         url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
-         result (http/get url {:query-params 
-                               {:jql query-str
-                                :startAt start
-                                :maxResults max-results}
-                               :content-type "application/json"
-                               :basic-auth [(System/getenv "NCBI_JIRA_USER")
-                                            (System/getenv "NCBI_JIRA_PASSWORD")]})
-         result-body (-> result :body json/parse-string)
-         remaining (- (result-body "total") (+ start max-results))]
-     (log/info "Retrieving messages from " start ", " (result-body "total") " total.")
-     (if (> remaining 0)
-       (lazy-seq
-        (cons (result-body "issues")
-              (issues-from curation-type start-time (+ start max-results))))
-       (list (result-body "issues")))))
+        url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
+        req  {:query-params 
+              {:jql query-str
+               :startAt start
+               :maxResults max-results}
+              :content-type "application/json"
+              :basic-auth [(System/getenv "NCBI_JIRA_USER")
+                           (System/getenv "NCBI_JIRA_PASSWORD")]}
+        result (http/get url req)
+        result-body (-> result :body json/parse-string)
+        remaining (- (result-body "total") (+ start max-results))]
+    (log/info "Retrieving messages from " start ", " (result-body "total") " total.")
+    (if (> remaining 0)
+      (lazy-seq
+       (cons (result-body "issues")
+             (issues-from curation-type start-time (+ start max-results))))
+      (list (result-body "issues")))))
 
 (defn issues
   "Return a lazy seq of blocks of raw issues, retrieved from JIRA"

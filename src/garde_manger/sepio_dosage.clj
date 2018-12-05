@@ -4,7 +4,8 @@
             [clojure.pprint :refer [pprint]]
             [clojure.string :as s]
             [flatland.ordered.map :refer [ordered-map]]
-            [garde-manger.kafka :as kafka])
+            [garde-manger.kafka :as kafka]
+            [camel-snake-kebab.core :refer :all])
   (:import java.time.Instant
            java.time.OffsetDateTime))
 
@@ -133,7 +134,6 @@
 
 (defn construct-assertion
   [interp dosage]
-  (pprint interp)
   (let [date-part (re-find #"^[^\.]*" (get-in interp [:fields :resolutiondate]))
         dosage-dependent-fields (-get-dosage-dependent-fields interp
                                                               dosage

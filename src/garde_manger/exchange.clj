@@ -30,8 +30,6 @@
   "Push incoming messages to Kafka-based data exchange"
   [message producer kafka-topic]
   (let [msg-str (if (string? message) message (json/generate-string message))]
-    (println "in push-messages")
-    (pprint message)
     (.send producer (ProducerRecord. kafka-topic (:id message) msg-str))))
 
 (defn write-message
@@ -58,33 +56,33 @@
 
 (defn send-update-to-exchange
   "Update data exchange with issues modified after given time"
-  [datetime] 
-  (with-open [producer (kafka/producer)]
-    (doseq [batch (jira/issues "ISCA Gene Curation" datetime)]
-      (doseq [message (dosage/transform-gene-issues batch)]
-        (log/info "sending messages: " (with-out-str (pprint message)))
-        (push-message message producer "gene_dosage_dev"))
-      (doseq [message (sepio/sepio-interps (map kebab-keys batch))]
-        (log/info "sending messages: " (with-out-str (pprint message)))
-        (push-message message producer "gene_dosage_beta")))))
+  [datetime producer] 
+  (doseq [batch (jira/issues "ISCA Gene Curation" datetime)]
+    (doseq [message (dosage/transform-gene-issues batch)]
+      ;;(log/info "sending messages: " (with-out-str (pprint message)))
+      (push-message message producer "gene_dosage"))
+    (doseq [message (sepio/sepio-interps (map kebab-keys batch))]
+      ;;(log/info "sending messages: " (with-out-str (pprint message)))
+      (push-message message producer "gene_dosage_beta"))))
 
 (defn exchange-update-loop
   "Loop to update data exchange with messages updated after current date and time"
   []
   (while true
     (try
-      (let [last-polled (if (.exists (io/as-file last-polled-file))
-                          (slurp last-polled-file)
-                          start-date)
-            ;; TODO make sure this is in alignment with timezones used in JIRA
-            ;; ideally automatically
-            current-time (-> (LocalDateTime/now) (.format date-time-format))]
-        ;; Update last polled
-        (println "Querying JIRA from " last-polled)
-        (log/info "Querying JIRA from " last-polled)
-        ;; TODO Consider using current time as end-time for search to avoid
-        ;; double-pushing entities updated between polling and now
-        (send-update-to-exchange last-polled)
-        (spit last-polled-file current-time))
+      (with-open [producer (kafka/producer)]
+        (let [last-polled (if (.exists (io/as-file last-polled-file))
+                            (slurp last-polled-file)
+                            start-date)
+              ;; TODO make sure this is in alignment with timezones used in JIRA
+              ;; ideally automatically
+              current-time (-> (LocalDateTime/now) (.format date-time-format))]
+          ;; Update last polled
+          (println "Querying JIRA from " last-polled)
+          (log/info "Querying JIRA from " last-polled)
+          ;; TODO Consider using current time as end-time for search to avoid
+          ;; double-pushing entities updated between polling and now
+          (send-update-to-exchange last-polled producer)
+          (spit last-polled-file current-time)))
       (catch Exception e (log/error e)))
     (Thread/sleep (* 1000 60 5))))

@@ -14,7 +14,8 @@
    "ssl.truststore.password" (System/getenv "GARDE_KEY_PASS")
    "ssl.keystore.location" "keys/garde.keystore.jks"
    "ssl.keystore.password" (System/getenv "GARDE_KEY_PASS")
-   "ssl.key.password" (System/getenv "GARDE_KEY_PASS")})
+   "ssl.key.password" (System/getenv "GARDE_KEY_PASS")
+   "ssl.endpoint.identification.algorithm" ""})
 
 ;; Java Properties object defining configuration of Kafka client
 (defn client-configuration 

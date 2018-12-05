@@ -1,5 +1,7 @@
 - hosts: all
   tasks: 
+    - debug:
+        msg: "My Secret value is {{ ncbi_jira_password }}"
     - name: Install java-8
       apt:
         name: openjdk-8-jdk

@@ -1,7 +1,7 @@
 (ns garde-manger.core
   (:require [garde-manger.kafka :as kafka]
             [garde-manger.clinvar :as clinvar]
-            [garde-manger.gene-dosage :as gene-dosage]
+            [garde-manger.exchange :as dx]
             [clojure.tools.logging :as log]
             [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
@@ -15,5 +15,5 @@
   [& args]
   (let [opts (parse-opts args cli-options)]
     (if (-> opts :options :write-file)
-      (gene-dosage/write-file-updates)
-      (gene-dosage/exchange-update-loop))))
+      (dx/write-file-updates)
+      (dx/exchange-update-loop))))
