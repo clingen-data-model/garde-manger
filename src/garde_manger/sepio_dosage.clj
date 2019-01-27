@@ -9,16 +9,36 @@
   (:import java.time.Instant
            java.time.OffsetDateTime))
 
-
+(def context (into (ordered-map) [["id" "@id"]
+                                  ["type" "@type"]
+                                  ["SEPIO" "http://purl.obolibrary.org/obo/SEPIO_"]
+                                  ["PMID" "https://www.ncbi.nlm.nih.gov/pubmed/"]
+                                  ["BFO" "http://purl.obolibrary.org/obo/BFO_"]
+                                  ["CG" "http://dataexchange.clinicalgenome.org/terms/"]
+                                  ["DC" "http://purl.org/dc/elements/1.1/"]
+                                  ["OMIM" "http://identifiers.org/omim/"]
+                                  ["MONDO" "http://purl.obolibrary.org/obo/MONDO_"]
+                                  ["has_evidence_with_item" {"@id" "SEPIO:0000189"
+                                                             "@type" "@id"}]
+                                  ["has_predicate" {"@id" "SEPIO:0000389"
+                                                    "@type" "@id"}]
+                                  ["has_subject" {"@id" "SEPIO:0000388"
+                                                  "@type" "@id"}]
+                                  ["qualified-contribution" {"@id" "SEPIO:0000159" 
+                                                             "@type" "@id"}]
+                                  ["activity_date" "SEPIO:0000160"]
+                                  ["realizes" "BFO:0000055"]
+                                  ["feature_count" "CG:feature_count"]
+                                  ["description" "DC:description"]]))
 
 (def frontmatter-fields {"title" :title
                          "updated" :modified
                          "status" :status})
 
 (def context-uri "http://dataexchange.clinicalgenome.org/contexts/sepio-context-v1")
-
 (def cg-prefix "https://search.clinicalgenome.org/entities/")
 (def pmid-prefix "https://www.ncbi.nlm.nih.gov/pubmed/")
+
 
 (defn -format-jira-datetime-string
   "Corrects flaw in JIRA's formatting of datetime strings. By default JIRA does not
@@ -71,9 +91,15 @@
   "Construct the variant representing the stated dosage of a gene"
   [interp dosage]
   (let [fields (:fields interp)]
-    {:has-feature (:customfield-10157 fields)
-     :type "CG:0009" ;; Gene dosage in GENO
+    {:has-subject (:customfield-10157 fields)
+     :type "CG:functional_genetic_dosage" 
      :feature-count (interpreted-dosage interp dosage)}))
+
+(def evidence-levels {"3" "SEPIO:0002006"
+                      "2" "SEPIO:0002009"
+                      "1" "SEPIO:0002007"
+                      "0" "SEPIO:0002008"
+                      "40: Dosage sensitivity unlikely" "CG:contradictory_evidence"})
 
 (defn -get-dosage-dependent-fields [interp dosage fields]
   (reduce #(if-let [v (get-in interp (cons :fields (first %2)))] 
@@ -88,7 +114,10 @@
   [result]
   (if-let [omim-id (:has-object result)]
     (assoc result :has-object (str "OMIM:" (s/trim omim-id)))
-    result))
+    (assoc result :has-object (str "MONDO:0000001"))))
+
+(defn- proposition-predicate []
+  )
 
 (defn construct-proposition
   "Return proposition object from interpretation"
@@ -96,7 +125,7 @@
   (let [result {:id (str cg-prefix (:key interp) "x" dosage)
                  :has-subject (construct-gene-dosage-variant interp dosage)
                  :has-predicate "http://purl.obolibrary.org/obo/GENO_0000840"
-                 :type "CG:0006"}]
+                 :type "SEPIO:0002003"}]
     (-> result 
         (merge (-get-dosage-dependent-fields interp dosage proposition-fields))
         -substitute-genetic-condition)))
@@ -114,16 +143,8 @@
     (assoc result :has-evidence-with-item e)
     result))
 
-(def evidence-levels {"3" "CG:00000"
-                      "2" "CG:00001"
-                      "1" "CG:00002"
-                      "0" "CG:00003"
-                      "40: Dosage sensitivity unlikely" "CG:00004"})
 
-(defn -convert-assertion-descriptor [assertion]
-  (if-let [descriptor (evidence-levels (:has-object assertion))]
-    (assoc assertion :has-object descriptor)
-    (dissoc assertion :has-object)))
+
 
 ;; ;; as above, 1: loss, 3: gain
 (def dosage-assertion-fields
@@ -132,20 +153,25 @@
    3 [[[:customfield-10166 :value] :has-object]
       [[:customfield-10199] :description]]})
 
+(defn- dosage-assertion-fields [interp dosage]
+  (let [fields (-get-dosage-dependent-fields interp
+                                             dosage
+                                             dosage-assertion-fields)]
+    (if-let [descriptor (evidence-levels (:has-object fields))]
+      (assoc fields :has-object descriptor)
+      (dissoc fields :has-object))))
+
 (defn construct-assertion
   [interp dosage]
   (let [date-part (re-find #"^[^\.]*" (get-in interp [:fields :resolutiondate]))
-        dosage-dependent-fields (-get-dosage-dependent-fields interp
-                                                              dosage
-                                                              dosage-assertion-fields)
         result {:id (str cg-prefix (:key interp) "x" dosage "-" date-part)
                 :qualified-contribution (construct-contribution interp)
                 :has-subject (construct-proposition interp dosage)
                 :has-predicate "SEPIO:0000146"
-                :type "CG:0007"}]
+                :type "SEPIO:0002001"}]
     (-> result
         (-add-evidence interp dosage)
-        (merge dosage-dependent-fields)
+        (merge (dosage-assertion-fields interp dosage))
         -convert-assertion-descriptor)))
 
 (defn convert-gene-interp
@@ -154,8 +180,8 @@
   [(construct-assertion interp 1)
    (construct-assertion interp 3)])
 
-(defn -interp-json-ld [interp]
-  (let [m (into (ordered-map) {"@context" context-uri})
+(defn- interp-json-ld [interp]
+  (let [m (into (ordered-map) {"@context" context})
         interp-ld (into m interp)
         json-str (json/generate-string interp-ld
                                        {:pretty true
@@ -163,7 +189,7 @@
     [(:id interp) json-str]))
 
 (defn interps-json-ld [interps]
-  (map -interp-json-ld interps))
+  (map interp-json-ld interps))
 
 (defn -short-id [from-str]
   (s/replace-first from-str cg-prefix ""))
@@ -171,6 +197,13 @@
 (defn sepio-interps [jira-data]
   (let [interps (mapcat convert-gene-interp jira-data)]
     (interps-json-ld interps)))
+
+(defn- interpretation-to-sepio [origin-data]
+  (let [parsed-data (if (instance? java.io.Reader origin-data)
+                      (json/parse-stream origin-data ->kebab-case-keyword)
+                      (json/parse-string origin-data ->kebab-case-keyword))
+        ]
+    (-> parsed-data convert-gene-interp interp-json-ld)))
 
 (defn convert-local-interps
   "convert interpretations stored locally on filesystem to output dir"
