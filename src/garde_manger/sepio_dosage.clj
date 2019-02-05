@@ -20,6 +20,7 @@
                                   ["MONDO" "http://purl.obolibrary.org/obo/MONDO_"]
                                   ["FALDO" "http://biohackathon.org/resource/faldo#"]
                                   ["NCBI_NU" "https://www.ncbi.nlm.nih.gov/nuccore/"]
+                                  ["RDFS" "http://www.w3.org/2000/01/rdf-schema#"]
                                   ["has_evidence_with_item" {"@id" "SEPIO:0000189"
                                                              "@type" "@id"}]
                                   ["has_predicate" {"@id" "SEPIO:0000389"
@@ -34,6 +35,7 @@
                                                "@type" "@id"}]
                                   ["source" {"@id" "IAO:0000115"
                                                "@type" "@id"}]
+                                  ["label" "RDFS:label"]
                                   ["activity_date" "SEPIO:0000160"]
                                   ["has_count" "GENO:0000917"]
                                   ["start_position" "GENO:0000894"]
@@ -124,6 +126,7 @@
   (when-let [loc-str (get-in interp [:fields :customfield-10160])]
     (let [[_ chr start-coord end-coord] (re-find #"(\w+):(\d+)-(\d+)" loc-str)]
       {:type "GENO:0000902"
+       :label (get-in interp [:fields :customfield-10202])
        :reference (chr-to-ref chr)
        :start-position start-coord
        :end-position end-coord})))
