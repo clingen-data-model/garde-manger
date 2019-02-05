@@ -45,4 +45,5 @@ Blank node (no id)
 *** Some Evidence
 *** Sufficient Evidence
 * punchlist
-** TODO Disease object is an OMIM curation. 
+** TODO Validate actual genetic dosage against NSTD45 record
+** TODO Consider curation for autosomal dominant curations -- ask Erin and Christa

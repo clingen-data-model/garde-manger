@@ -35,13 +35,14 @@
   [curation-type start-time] (issues-from curation-type start-time 0))
 
 (defn write-jira-output
-  "Write records from JIRA to data/jira-output"
-  []
-  (println "Writing data to data/jira-output")
-  (let [issue-batches (issues "ISCA Gene Curation" "2010-01-01")]
+  "Write records from JIRA to data/jira-output
+  curation type should be one of :gene or :region"
+  [output-dir curation-type]
+  (println "Writing data to " output-dir)
+  (let [issue-batches (issues (type-description curation-type) "2010-01-01")]
     (doseq [batch issue-batches
             issue batch]
-      (with-open [w (io/writer (str "data/jira-output/" (get issue "key") ".json"))]
+      (with-open [w (io/writer (str output-dir (get issue "key") ".json"))]
         (json/generate-stream issue w {:pretty true}))))
   (println "Completed writing jira output"))
 
