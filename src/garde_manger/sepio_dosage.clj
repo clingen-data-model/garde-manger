@@ -129,7 +129,7 @@
        :end-position end-coord})))
 
 (defn dosage-subject [interp]
-  (if-let [gene (:fields :customfield-10157)]
+  (if-let [gene (get-in interp [:fields :customfield-10157])]
     gene
     (construct-location interp)))
 
