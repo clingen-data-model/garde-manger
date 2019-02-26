@@ -47,3 +47,10 @@ Blank node (no id)
 * punchlist
 ** TODO Validate actual genetic dosage against NSTD45 record
 ** TODO Consider curation for autosomal dominant curations -- ask Erin and Christa
+** TODO PMIDs occasionally result in bad IRIs.
+
+There are comma separated lists, non numeric values, and spaces that resist trimming included in this list (Possibly prefixed with "PMID: " in the actual text field)
+
+Also these are present in fields that expect OMIM ids, potentially.
+
+Really there should be a normalizer that warns when IRIs cannot be worked into a usable form.

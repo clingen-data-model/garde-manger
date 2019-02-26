@@ -21,12 +21,15 @@
                                   ["FALDO" "http://biohackathon.org/resource/faldo#"]
                                   ["NCBI_NU" "https://www.ncbi.nlm.nih.gov/nuccore/"]
                                   ["RDFS" "http://www.w3.org/2000/01/rdf-schema#"]
+                                  ["GENO" "http://purl.obolibrary.org/obo/GENO_"]
                                   ["has_evidence_with_item" {"@id" "SEPIO:0000189"
                                                              "@type" "@id"}]
                                   ["has_predicate" {"@id" "SEPIO:0000389"
                                                     "@type" "@id"}]
                                   ["has_subject" {"@id" "SEPIO:0000388"
                                                   "@type" "@id"}]
+                                  ["has_object" {"@id" "SEPIO:0000390"
+                                                 "@type" "@id"}]
                                   ["qualified_contribution" {"@id" "SEPIO:0000159" 
                                                              "@type" "@id"}]
                                   ["reference" {"@id" "FALDO:reference"
@@ -35,6 +38,8 @@
                                                "@type" "@id"}]
                                   ["source" {"@id" "IAO:0000115"
                                                "@type" "@id"}]
+                                  ["is_feature_affected_by" {"@id" "GENO:0000445"
+                                                             "@type" "@id"}]
                                   ["label" "RDFS:label"]
                                   ["activity_date" "SEPIO:0000160"]
                                   ["has_count" "GENO:0000917"]
@@ -48,7 +53,6 @@
 
 (def context-uri "http://dataexchange.clinicalgenome.org/contexts/sepio-context-v1")
 (def cg-prefix "https://search.clinicalgenome.org/entities/")
-(def pmid-prefix "https://www.ncbi.nlm.nih.gov/pubmed/")
 
 (def chr-to-ref {"chr1" "NCBI_NU:NC_000001.10"
                  "chr2" "NCBI_NU:NC_000002.11"
@@ -97,7 +101,7 @@
   [interp [pmid-field description-field]]
   (when-let [pmid (get-in interp [:fields pmid-field])]
     {:type "SEPIO:0000173"
-     :source (str "PMID:" pmid)
+     :source (str "PMID:" (s/trim pmid))
      :description (get-in interp [:fields description-field])}))
 
 ;; Key is the dosage of the area (1: haploinsufficient, 3: triplosensitive)
@@ -140,7 +144,7 @@
   "Construct the variant representing the stated dosage of a gene"
   [interp dosage]
   (let [fields (:fields interp)]
-    {:has-subject (dosage-subject interp)
+    {:is-feature-affected-by (dosage-subject interp)
      :type "GENO:0000923" 
      :has-count (interpreted-dosage interp dosage)}))
 
