@@ -11,7 +11,7 @@
   )
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "I do everything."
   [& args]
   (let [opts (parse-opts args cli-options)]
     (if (-> opts :options :write-file)
