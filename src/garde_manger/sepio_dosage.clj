@@ -101,7 +101,7 @@
   [interp [pmid-field description-field]]
   (when-let [pmid (get-in interp [:fields pmid-field])]
     {:type "SEPIO:0000173"
-     :source (str "PMID:" (s/trim pmid))
+     :source (str "PMID:" (re-find #"\d+" pmid))
      :description (get-in interp [:fields description-field])}))
 
 ;; Key is the dosage of the area (1: haploinsufficient, 3: triplosensitive)
@@ -167,8 +167,8 @@
 
 (defn- format-comma-separated-list [prefix list-string]
   (if (s/includes? list-string ",")
-    (mapv #(str prefix %) (-> list-string s/trim (s/split #",")))
-    (str prefix list-string)))
+    (mapv #(str prefix (re-find #"\d+"%)) (-> list-string (s/split #",")))
+    (str prefix (re-find #"\d+" list-string))))
 
 (defn- substitute-genetic-condition
   [result]
@@ -221,7 +221,7 @@
                                              dosage
                                              dosage-assertion-fields)]
     (if-let [descriptor (evidence-levels (:has-object fields))]
-      (assoc fields :has-object descriptor)
+      (assoc fields :has-object (s/trim descriptor))
       (dissoc fields :has-object))))
 
 (defn construct-assertion
