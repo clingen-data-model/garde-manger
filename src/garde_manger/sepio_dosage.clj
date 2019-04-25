@@ -262,7 +262,7 @@
   (s/replace-first from-str cg-prefix ""))
 
 (defn sepio-interps [jira-data]
-  (mapcat interpretation-to-sepio jira-data))
+  (mapcat #(->> % convert-gene-interp (map interp-json-ld)) jira-data))
 
 (defn convert-local-interps
   "convert interpretations stored locally on filesystem to output dir"

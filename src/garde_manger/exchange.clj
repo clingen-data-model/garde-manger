@@ -59,10 +59,13 @@
   [datetime producer] 
   (doseq [batch (jira/issues "ISCA Gene Curation" datetime)]
     (doseq [message (dosage/transform-gene-issues batch)]
-      ;;(log/info "sending messages: " (with-out-str (pprint message)))
       (push-message message producer "gene_dosage"))
+    (println "Transforming gene batch.")
     (doseq [message (sepio/sepio-interps (map kebab-keys batch))]
-      ;;(log/info "sending messages: " (with-out-str (pprint message)))
+      (push-message message producer "gene_dosage_beta")))
+  (doseq [batch (jira/issues "ISCA Region Curation" datetime)]
+    (println "Transforming region batch.")
+    (doseq [message (sepio/sepio-interps (map kebab-keys batch))]
       (push-message message producer "gene_dosage_beta"))))
 
 (defn exchange-update-loop
