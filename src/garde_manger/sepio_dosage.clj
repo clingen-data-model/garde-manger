@@ -22,6 +22,7 @@
                                   ["NCBI_NU" "https://www.ncbi.nlm.nih.gov/nuccore/"]
                                   ["RDFS" "http://www.w3.org/2000/01/rdf-schema#"]
                                   ["GENO" "http://purl.obolibrary.org/obo/GENO_"]
+                                  ["IAO" "http://purl.obolibrary.org/obo/IAO_"]
                                   ["has_evidence_with_item" {"@id" "SEPIO:0000189"
                                                              "@type" "@id"}]
                                   ["has_predicate" {"@id" "SEPIO:0000389"
@@ -126,14 +127,15 @@
     0
     dosage))
 
+
 (defn construct-location [interp]
   (when-let [loc-str (get-in interp [:fields :customfield-10160])]
-    (let [[_ chr start-coord end-coord] (re-find #"(\w+):(\d+)-(\d+)" loc-str)]
+    (let [[_ chr start-coord end-coord] (re-find #"(\w+):(.+)-(.+)$" loc-str)]
       {:type "GENO:0000902"
        :label (get-in interp [:fields :customfield-10202])
        :reference (chr-to-ref chr)
-       :start-position start-coord
-       :end-position end-coord})))
+       :start-position (-> start-coord (s/replace #"\D" "") Integer.)
+       :end-position (-> end-coord (s/replace #"\D" "") Integer.)})))
 
 (defn dosage-subject [interp]
   (if-let [gene (get-in interp [:fields :customfield-10157])]
