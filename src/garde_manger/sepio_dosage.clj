@@ -16,7 +16,7 @@
                                   ["BFO" "http://purl.obolibrary.org/obo/BFO_"]
                                   ["CG" "http://dataexchange.clinicalgenome.org/terms/"]
                                   ["DC" "http://purl.org/dc/elements/1.1/"]
-                                  ["OMIM" "http://identifiers.org/omim/"]
+                                  ["OMIM" "http://purl.obolibrary.org/obo/OMIM_"]
                                   ["MONDO" "http://purl.obolibrary.org/obo/MONDO_"]
                                   ["FALDO" "http://biohackathon.org/resource/faldo#"]
                                   ["NCBI_NU" "https://www.ncbi.nlm.nih.gov/nuccore/"]
