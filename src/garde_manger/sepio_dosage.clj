@@ -33,6 +33,8 @@
                                                  "@type" "@id"}]
                                   ["qualified_contribution" {"@id" "SEPIO:0000159" 
                                                              "@type" "@id"}]
+                                  ["is_specified_by" {"@id" "SEPIO:0000041"
+                                                      "@type" "@id"}]
                                   ["reference" {"@id" "FALDO:reference"
                                                 "@type" "@id"}]
                                   ["realizes" {"@id" "BFO:0000055"
@@ -120,14 +122,6 @@
   [interp dosage]
   (remove nil? (map #(construct-study-finding interp %) (evidence-field-map dosage))))
 
-(defn interpreted-dosage 
-  "dosage of variant is 0 when evidence supports AR phenotype"
-  [interp dosage]
-  (if (and (= 1 dosage) (= "30" (get-in interp [:fields :customfield-10165 :value])))
-    0
-    dosage))
-
-
 (defn construct-location [interp]
   (when-let [loc-str (get-in interp [:fields :customfield-10160])]
     (let [[_ chr start-coord end-coord] (re-find #"(\w+):(.+)-(.+)$" loc-str)]
@@ -147,8 +141,8 @@
   [interp dosage]
   (let [fields (:fields interp)]
     {:is-feature-affected-by (dosage-subject interp)
-     :type "GENO:0000923" 
-     :has-count (interpreted-dosage interp dosage)}))
+     :type "GENO:0000963" 
+     :has-count dosage}))
 
 (def evidence-levels {"3" "SEPIO:0002006"
                       "2" "SEPIO:0002009"
@@ -226,25 +220,48 @@
       (assoc fields :has-object (s/trim descriptor))
       (dissoc fields :has-object))))
 
-(defn construct-assertion
+
+(defn common-assertion-fields
   [interp dosage]
-  (let [;;date-part (re-find #"^[^\.]*" (get-in interp [:fields :resolutiondate]))
-        date-part (resolution-date interp)
+  (let [date-part (resolution-date interp)
         result {:id (str cg-prefix (:key interp) "x" dosage "-" date-part)
                 :qualified-contribution (construct-contribution interp)
                 :has-subject (construct-proposition interp dosage)
-                :has-predicate "SEPIO:0000146"
-                :type "SEPIO:0002001"}
+                :is-specified-by "SEPIO:0002004"}
         dosage-fields (get-dosage-assertion-fields interp dosage)]
     (-> result
         (-add-evidence interp dosage)
         (merge dosage-fields))))
 
+(defn construct-scope-assertion
+  [interp dosage]
+  (merge (common-assertion-fields interp dosage)
+         {:has-predicate "SEPIO:0002505"
+          :has-object "SEPIO:0002502"
+          :type "SEPIO:0002014"}))
+
+(defn construct-evidence-strength-assertion
+  [interp dosage]
+  (merge (common-assertion-fields interp dosage)
+         {:has-predicate "SEPIO:0000146"
+          :type "SEPIO:0002001"}))
+
+(defn construct-assertion
+  "If the assertion is for haploinsufficiency and that the gene is associated with an autosoma
+  recessive phenotype, "
+  [interp dosage]
+  (if (and (= 1 dosage)
+           (= "30: Gene associated with autosomal recessive phenotype" 
+              (get-in interp [:fields :customfield-10165 :value])))
+    (construct-scope-assertion interp dosage)
+    (construct-evidence-strength-assertion interp dosage)))
+
 (defn convert-gene-interp
-  "Convert gene interpretation to SEPIO format"
+  "Convert gene interpretation to SEPIO format. Return only records that have a valid
+  object associated with the assertion."
   [interp]
-  [(construct-assertion interp 1)
-   (construct-assertion interp 3)])
+  (filterv :has-object [(construct-assertion interp 1)
+                        (construct-assertion interp 3)]))
 
 (defn- interp-json-ld [interp]
   (let [m (into (ordered-map) {"@context" context})
