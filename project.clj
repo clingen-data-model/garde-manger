@@ -19,12 +19,11 @@
                  ;;               com.sun.jmdk/jmxtools
                  ;;               com.sun.jmx/jmxri]]
                  [camel-snake-kebab "0.4.0"]
-                 [org.flatland/ordered "1.5.6"]
+                 [org.flatland/ordered "1.5.7"]
                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
                                                     javax.jms/jms
                                                     com.sun.jmdk/jmxtools
-                                                    com.sun.jmx/jmxri]]
-                 ]
+                                                    com.sun.jmx/jmxri]]]
   :main ^:skip-aot garde-manger.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

@@ -23,6 +23,7 @@
                                   ["RDFS" "http://www.w3.org/2000/01/rdf-schema#"]
                                   ["GENO" "http://purl.obolibrary.org/obo/GENO_"]
                                   ["IAO" "http://purl.obolibrary.org/obo/IAO_"]
+                                  ["DCT" "http://purl.org/dc/terms/"]
                                   ["has_evidence_with_item" {"@id" "SEPIO:0000189"
                                                              "@type" "@id"}]
                                   ["has_predicate" {"@id" "SEPIO:0000389"
@@ -39,7 +40,7 @@
                                                 "@type" "@id"}]
                                   ["realizes" {"@id" "BFO:0000055"
                                                "@type" "@id"}]
-                                  ["source" {"@id" "IAO:0000115"
+                                  ["source" {"@id" "DCT:source"
                                                "@type" "@id"}]
                                   ["is_feature_affected_by" {"@id" "GENO:0000445"
                                                              "@type" "@id"}]
@@ -55,7 +56,7 @@
                          "status" :status})
 
 (def context-uri "http://dataexchange.clinicalgenome.org/contexts/sepio-context-v1")
-(def cg-prefix "https://search.clinicalgenome.org/entities/")
+(def cg-prefix "http://dx.clinicalgenome.org/entities/")
 
 (def chr-to-ref {"chr1" "NCBI_NU:NC_000001.10"
                  "chr2" "NCBI_NU:NC_000002.11"
