@@ -270,7 +270,9 @@
         json-str (json/generate-string interp-ld
                                        {:pretty true
                                         :key-fn ->snake_case_string})]
-    [(:id interp) json-str]))
+    ;;[(:id interp) json-str]
+    json-str
+    ))
 
 (defn- interpretation-to-sepio [origin-data]
   (let [parsed-data (if (instance? java.io.Reader origin-data)
