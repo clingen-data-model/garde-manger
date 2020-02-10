@@ -12,7 +12,8 @@
 
 (defn issues-from [curation-type start-time start]
   (let [query-str (str "project = ISCA AND type = \"" curation-type "\" AND status != Open AND resolution = Complete AND updated > '" start-time "' ORDER BY updated DESC")
-        url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
+        ;;url "https://ncbijira.ncbi.nlm.nih.gov/rest/api/2/search"
+        url "http://dci.clinicalgenome.org/rest/api/2/search"
         req  {:query-params 
               {:jql query-str
                :startAt start
